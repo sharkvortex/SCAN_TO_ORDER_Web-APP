@@ -1,0 +1,43 @@
+@import "tailwindcss";
+html,
+body {
+  font-family: "Fredoka", "IBM Plex Sans Thai", sans-serif;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/*  */
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+/*  */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

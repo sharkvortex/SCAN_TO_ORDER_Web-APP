@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Food {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  price       Float
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orders      Order[]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  foods     Food[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Table {
+  id          Int      @id @default(autoincrement())
+  tableNumber Int      @unique
+  status      Status   @default(AVAILABLE)
+  capacity    Int
+  token       String?  @unique
+  orderId     String? 
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Status {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+}
+
+model OrderSession {
+  id          Int       @id @default(autoincrement())
+  orderId     String    @unique                    
+  tableNumber Int
+  status      SessionStatus @default(PENDING)       
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  orders      Order[]   @relation("SessionOrders")
+}
+
+enum SessionStatus {
+  PENDING     
+  PAID       
+  CANCELLED   
+}
+
+model Order {
+  id              Int           @id @default(autoincrement())
+  orderSessionId  Int
+  orderSession    OrderSession  @relation(fields: [orderSessionId], references: [id], name: "SessionOrders", onDelete: Cascade)
+  foodId          Int
+  food            Food          @relation(fields: [foodId], references: [id])
+  
+  foodName        String        
+  foodPrice       Float
+  status          OrderStatus @default(PENDING)
+  quantity        Int
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING     
+  CONFIRMED   
+  SERVED      
+  CANCELLED   
+}
