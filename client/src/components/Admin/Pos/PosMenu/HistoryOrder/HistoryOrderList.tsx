@@ -5,7 +5,7 @@ import type { HistoryFoodType } from "../../../../../Types/food";
 import { useChangeStatus } from "../../../../../hooks/Admin/useChangeStatus";
 import toast from "react-hot-toast";
 import socket from "../../../../Sokcet/soket";
-
+import ConfirmDialog from "../../../../Dialog/ConfirmDialog";
 interface HistoryOrderListTypes {
   loading: boolean;
   sortedOrders: HistoryFoodType[];
@@ -70,12 +70,8 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
     }
   };
 
-  const deleteOrder = (id: number) => {
-    if (confirm("คุณแน่ใจหรือไม่ที่จะลบออเดอร์นี้?")) {
-      console.log("ลบออเดอร์ id:", id);
-      toast.success("ลบออเดอร์สำเร็จ");
-      socket.emit("update-order");
-    }
+  const deleteOrder = (order: HistoryFoodType) => {
+    console.log(order);
   };
 
   return (
@@ -146,10 +142,12 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                     {(order.foodPrice * order.quantity).toFixed(0)}฿
                   </p>
                   {order.note && (
-                    <div className="mt-2 rounded bg-gray-100 px-2 py-1">
-                      <p className="text-xs text-gray-600">
-                        <span className="text-gray-500">หมายเหตุ:</span>{" "}
-                        {order.note}
+                    <div className="mt-2 rounded px-2 py-1">
+                      <p className="text-sm text-gray-600">
+                        หมายเหตุ: {""}
+                        <span className="font-semibold text-red-500">
+                          {order.note}
+                        </span>
                       </p>
                     </div>
                   )}
@@ -196,7 +194,7 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                 {/* Only show trash icon for non-SERVED orders */}
                 {order.status !== "SERVED" && (
                   <button
-                    onClick={() => deleteOrder(order.id)}
+                    onClick={() => deleteOrder(order)}
                     className="mt-1 flex items-center gap-1 text-sm text-red-600 transition-colors hover:text-red-800"
                   >
                     <FiTrash2 size={16} />
