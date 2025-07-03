@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 import { AnimatePresence, motion } from "framer-motion";
 // Types
 import type { tableType } from "../../../../../Types/tableType";
+import type { diaLogTypes } from "../../../../../Types/diaLogTypes";
 interface HistoryOrderTypes {
   onClose: () => void;
   table: tableType;
@@ -38,7 +39,6 @@ const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
   useEffect(() => {
     const orderUpdate = () => {
       getHistoryOrder(table?.tableNumber);
-      console.log("อัพเดทใหม่");
     };
     getHistoryOrder(table?.tableNumber);
     socket.on("order-update", orderUpdate);
@@ -101,31 +101,31 @@ const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
   const hasPending = sortedOrders.some((order) => order.status === "PENDING");
 
   type ActionType = "recevice" | "served" | "";
-  type DialogType = "info" | "success" | "error" | "confirm";
 
   const [actionType, setActionType] = useState<ActionType>("");
   const dialogConfig: Record<
     Exclude<ActionType, "">,
     {
-      type: DialogType;
+      type: diaLogTypes["type"];
       title: string;
       description: string;
       confirmFn: () => void;
     }
   > = {
     recevice: {
-      type: "confirm",
+      type: "success",
       title: "ยืนยันรับออเดอร์ทั้งหมด?",
       description: "ยืนยันรับออเดอร์ที่ลูกค้าสั่งเข้ามาทั้งหมดหรือไม่?",
       confirmFn: () => handleAcceptAll(table.tableNumber),
     },
     served: {
-      type: "confirm",
+      type: "info",
       title: "เปลี่ยนสถานะเป็นเสิร์ฟทั้งหมด?",
       description: "ยืนยันเปลี่ยนสถานะเป็นเสิร์ฟทั้งหมดหรือไม่?",
       confirmFn: () => handleServedAll(table.tableNumber),
     },
   };
+
   const isValidDialogAction = (
     action: ActionType,
   ): action is Exclude<ActionType, ""> => {
