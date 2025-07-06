@@ -8,6 +8,7 @@ import socket from "../../../../Sokcet/soket";
 import ConfirmDialog from "../../../../Dialog/ConfirmDialog";
 import { useState } from "react";
 import type { diaLogTypes } from "../../../../../Types/diaLogTypes";
+import { useDeleteOrder } from "../../../../../hooks/Admin/useDeleteOrder";
 interface HistoryOrderListTypes {
   loading: boolean;
   sortedOrders: HistoryFoodType[];
@@ -15,7 +16,7 @@ interface HistoryOrderListTypes {
 
 function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
   const { changeStatusFood } = useChangeStatus();
-
+  const { deleteOrderId } = useDeleteOrder();
   const StatusText = (status: string) => {
     switch (status) {
       case "PENDING":
@@ -66,14 +67,12 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
     try {
       await changeStatusFood(id, status);
       socket.emit("update-order");
-      setActionType("")
+      setActionType("");
     } catch (error) {
       toast.error("ไม่สามารถอัพเดทสถานะได้");
       console.log(error);
     }
   };
-
-  
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -99,7 +98,14 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
       type: "error",
       title: "ยืนยันการลบ?",
       description: "ยืนยันการลบออเดอร์หรือไม่?",
-      confirmFn: () => console.log(selectedId),
+      confirmFn: async () => {
+        try {
+          await deleteOrderId(selectedId);
+          setActionType("");
+        } catch (error) {
+          console.log(error);
+        }
+      },
     },
   };
 
@@ -177,7 +183,7 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                     </span>
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between gap-2">
                       <h3 className="font-medium text-gray-800">
                         {order.foodName}
                       </h3>
@@ -218,7 +224,7 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                         </button>
                         <button
                           onClick={() => {
-                            setActionType("cancel")
+                            setActionType("cancel");
                             setSelectedId(order.id);
                           }}
                           className="w-full rounded-md bg-red-500 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-red-600"
@@ -232,16 +238,16 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                       <>
                         <button
                           onClick={() => changeStatusOrder(order.id, "SERVED")}
-                          className="w-full rounded-md bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700"
+                          className="w-full rounded-md bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-blue-700"
                         >
                           เสิร์ฟแล้ว
                         </button>
                         <button
                           onClick={() => {
-                            setActionType("cancel")
+                            setActionType("cancel");
                             setSelectedId(order.id);
                           }}
-                          className="w-full rounded-md bg-red-500 px-3 py-2 text-xs font-medium text-white hover:bg-red-600"
+                          className="w-full rounded-md bg-red-500 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-red-600"
                         >
                           ยกเลิก
                         </button>
@@ -252,10 +258,10 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                   {order.status !== "SERVED" && (
                     <button
                       onClick={() => {
-                            setActionType("delete")
-                            setSelectedId(order.id);
-                          }}
-                      className="mt-1 flex hover:cursor-pointer items-center gap-1 text-sm text-red-600 transition-colors hover:text-red-800"
+                        setActionType("delete");
+                        setSelectedId(order.id);
+                      }}
+                      className="mt-1 flex items-center gap-1 text-sm text-red-600 transition-colors hover:cursor-pointer hover:text-red-800"
                     >
                       <FiTrash2 size={16} />
                       <span className="text-xs">ลบ</span>

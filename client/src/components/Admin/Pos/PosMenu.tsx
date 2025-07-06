@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlusCircle, Clock, DollarSign, User, Edit2, X } from "lucide-react";
 import OpenTable from "./PosMenu/OpenTable";
 import HistoryOrder from "./PosMenu/HistoryOrder/HistoryOrder";
 import { AnimatePresence, motion } from "framer-motion";
 import type { tableType } from "../../../Types/tableType";
-
+import AddOrder from "./PosMenu/AddOrder/AddOrder";
 interface PosMenuTypes {
   onClose: () => void;
   createSuccess: () => void;
@@ -15,6 +15,14 @@ const PosMenu = ({ table, onClose, createSuccess }: PosMenuTypes) => {
   const isAvailable = status === "available";
   const isOccupied = status === "occupied";
   const isReserved = status === "reserved";
+
+  useEffect(() => {
+    document.body.classList.add("overflow-hidden");
+
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, []);
 
   const [isVisible, setIsVisible] = useState(true);
   const handleClose = () => {
@@ -38,14 +46,14 @@ const PosMenu = ({ table, onClose, createSuccess }: PosMenuTypes) => {
     return "ไม่ทราบสถานะ";
   };
   const [activeModal, setActiveModal] = useState<
-    null | "createQrocde" | "orderHistory" | "reservedTable"
+    null | "createQrocde" | "orderHistory" | "reservedTable" | "addOrder"
   >(null);
 
   const handlerOpenTable = () => {
     if (isAvailable || isReserved) {
       setActiveModal("createQrocde");
     } else {
-      console.log("เพิ่มออเดอร์");
+      setActiveModal("addOrder");
     }
   };
 
@@ -128,6 +136,12 @@ const PosMenu = ({ table, onClose, createSuccess }: PosMenuTypes) => {
                   </div>
                 </button>
 
+                {activeModal === "addOrder" && (
+                  <AddOrder
+                    table={table}
+                    onClose={() => setActiveModal(null)}
+                  />
+                )}
                 {activeModal === "orderHistory" && (
                   <HistoryOrder
                     table={table}

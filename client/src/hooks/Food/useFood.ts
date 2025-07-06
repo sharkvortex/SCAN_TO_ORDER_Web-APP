@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Food } from "../../Types/food";
 
 export const useFood = () => {
@@ -7,7 +7,7 @@ export const useFood = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const token = sessionStorage.getItem("token");
 
-  const getFood = async () => {
+  const getFood = useCallback(async () => {
     if (!token) return;
 
     try {
@@ -24,11 +24,11 @@ export const useFood = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     getFood();
-  }, []);
+  }, [getFood]);
 
   return { getFood, foods, loading };
 };

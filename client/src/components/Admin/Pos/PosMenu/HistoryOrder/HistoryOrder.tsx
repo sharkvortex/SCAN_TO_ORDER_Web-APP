@@ -12,6 +12,7 @@ import { useHistoryOrder } from "../../../../../hooks/Admin/useHistoryOrder";
 import { useEffect, useState } from "react";
 import { useReceiveOrder } from "../../../../../hooks/Admin/useReceiveOrder";
 import { useServedOrder } from "../../../../../hooks/Admin/useServedOrder";
+import { useCancelOrder } from "../../../../../hooks/Admin/useCancelOrder";
 // Framework
 import socket from "../../../../Sokcet/soket";
 import toast from "react-hot-toast";
@@ -26,6 +27,7 @@ interface HistoryOrderTypes {
 const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
   const { receiveOrder } = useReceiveOrder();
   const { servedOrder } = useServedOrder();
+  const { cancelOrder } = useCancelOrder();
   const { historyOrder, getHistoryOrder, loading } = useHistoryOrder();
   const [isVisible, setIsVisible] = useState(true);
 
@@ -61,8 +63,16 @@ const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
     }
   };
 
-  const handleCancelAll = () => {
-    toast("ยังไม่ได้เพิ่ม logic ยกเลิกทั้งหมด");
+  const handleCancelAll = async (table: number) => {
+    try {
+      await cancelOrder(table);
+      setActionType("");
+      toast.success("ยกเลิกเรียบร้อย");
+      socket.emit("update-order", table);
+    } catch (error) {
+      console.log(error);
+      toast.error("เปลี่ยนสถานะล้มเหลว");
+    }
   };
 
   const handleServedAll = async (table: number) => {
@@ -100,7 +110,7 @@ const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
 
   const hasPending = sortedOrders.some((order) => order.status === "PENDING");
 
-  type ActionType = "recevice" | "served" | "";
+  type ActionType = "recevice" | "served" | "cancel" | "";
 
   const [actionType, setActionType] = useState<ActionType>("");
   const dialogConfig: Record<
@@ -124,12 +134,18 @@ const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
       description: "ยืนยันเปลี่ยนสถานะเป็นเสิร์ฟทั้งหมดหรือไม่?",
       confirmFn: () => handleServedAll(table.tableNumber),
     },
+    cancel: {
+      type: "error",
+      title: "ยกเลิกทั้งหมด?",
+      description: "ยืนยันเปลี่ยนสถานะเป็นยกเลิกหรือไม่?",
+      confirmFn: () => handleCancelAll(table.tableNumber),
+    },
   };
 
   const isValidDialogAction = (
     action: ActionType,
   ): action is Exclude<ActionType, ""> => {
-    return action === "recevice" || action === "served";
+    return action === "recevice" || action === "served" || action === "cancel";
   };
   return (
     <>
@@ -139,7 +155,7 @@ const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-gray-50 p-4 md:p-6"
+            className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-white p-4 md:p-6"
           >
             {isValidDialogAction(actionType) && (
               <ConfirmDialog
@@ -224,7 +240,7 @@ const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
                         <ImCheckmark size={20} /> รับออเดอร์ทั้งหมด
                       </button>
                       <button
-                        onClick={handleCancelAll}
+                        onClick={() => setActionType("cancel")}
                         className="flex items-center gap-2 rounded-lg bg-red-400 px-4 py-2 text-sm text-white hover:cursor-pointer hover:bg-red-500"
                       >
                         <IoClose size={20} /> ยกเลิกทั้งหมด

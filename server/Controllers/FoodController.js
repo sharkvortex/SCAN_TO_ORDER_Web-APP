@@ -2,20 +2,20 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 import jwt from "jsonwebtoken";
 export const getFood = async (request, reply) => {
-  const authHeader = request.headers.authorization;
-  if (!authHeader) {
-    return reply
-      .status(401)
-      .send({ message: "Authorization header is required" });
-  }
+  // const authHeader = request.headers.authorization;
+  // if (!authHeader) {
+  //   return reply
+  //     .status(401)
+  //     .send({ message: "Authorization header is required" });
+  // }
 
-  const token = authHeader.replace("Bearer ", "");
-  if (!token) {
-    return reply.status(401).send({ message: "Token is required" });
-  }
+  // const token = authHeader.replace("Bearer ", "");
+  // if (!token) {
+  //   return reply.status(401).send({ message: "Token is required" });
+  // }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const food = await prisma.food.findMany({
       include: {

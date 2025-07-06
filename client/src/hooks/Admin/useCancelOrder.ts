@@ -1,12 +1,12 @@
 import axios from "axios";
 import { useState } from "react";
-export const useReceiveOrder = () => {
+export const useCancelOrder = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const receiveOrder = async (table: number) => {
+  const cancelOrder = async (table: number) => {
     try {
       setLoading(true);
-      const response = await axios.put(
-        `/api/update-order/receive-order-all/${table}`,
+      const response = await axios.patch(
+        `/api/update-order/cancel-order-all/${table}`,
         {
           withCredentials: true,
         },
@@ -17,5 +17,5 @@ export const useReceiveOrder = () => {
     }
   };
 
-  return { receiveOrder, loading };
+  return { cancelOrder, loading };
 };

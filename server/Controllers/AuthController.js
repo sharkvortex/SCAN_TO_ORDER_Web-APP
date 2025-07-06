@@ -16,3 +16,9 @@ export const verifyToken = async (request, reply) => {
     return reply.status(401).send({ message: "Invalid or expired token" });
   }
 };
+
+export const Login = async (request, reply) => {
+  const { username, password } = request.body;
+
+  return reply.send(formData);
+};

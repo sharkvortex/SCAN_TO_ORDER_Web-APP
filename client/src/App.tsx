@@ -5,6 +5,8 @@ import BasketDetail from "./pages/BasketDetail";
 import Admin from "./pages/admin/Admin";
 import AdminUser from "./pages/admin/AdminUser";
 
+// Auth
+import LoginForm from "./components/Auth/LoginForm";
 // Middleware
 import VerifyToken from "./middleware/VerifyToken";
 function App() {
@@ -28,6 +30,8 @@ function App() {
               </VerifyToken>
             }
           />
+
+          <Route path="/auth/login" element={<LoginForm />} />
 
           <Route path="/admin/pos" element={<Admin />} />
           <Route path="/system/dashboard/users" element={<AdminUser />} />

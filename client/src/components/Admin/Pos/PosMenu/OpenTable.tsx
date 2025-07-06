@@ -56,7 +56,7 @@ function OpenTable({ onClose, table, onSuccess }: OpenTableProps) {
             </h2>
 
             <button
-              className="flex w-full items-center justify-center gap-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3 text-lg font-semibold text-white shadow transition-all duration-200 hover:scale-105 hover:cursor-pointer"
+              className="flex w-full items-center justify-center gap-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3 text-lg font-semibold text-white shadow transition-all duration-200 hover:cursor-pointer"
               onClick={() => handlerCreateQr(table)}
             >
               <BsQrCode className="text-2xl" />
