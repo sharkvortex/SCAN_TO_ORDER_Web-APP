@@ -1,13 +1,9 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import { useLogin } from "../../hooks/Auth/useLogin";
 function LoginForm() {
   const { login } = useLogin();
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
-
-  const [errors, setErrors] = useState({
     username: "",
     password: "",
   });
@@ -19,16 +15,21 @@ function LoginForm() {
       [name]: value,
     }));
 
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
   };
 
   const handlerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if(!formData.username){
+      return toast.error("กรุณากรอก Username")
+    }else if(!formData.password){
+      return toast.error("กรุณากรอก Password")
+    }
     try {
       await login(formData);
+      setFormData({
+        username: "",
+        password: ""
+      })
     } catch (error) {
       console.log(error);
     }
@@ -59,9 +60,7 @@ function LoginForm() {
               onChange={handlerChange}
             />
           </div>
-          {errors.username && (
-            <p className="text-sm text-red-500">{errors.username}</p>
-          )}
+         
           <div>
             <label
               htmlFor="password"
@@ -79,9 +78,7 @@ function LoginForm() {
               onChange={handlerChange}
             />
           </div>
-          {errors.password && (
-            <p className="text-sm text-red-500">{errors.password}</p>
-          )}
+          
           <button
             type="submit"
             className="w-full rounded-md bg-black px-4 py-2 font-medium text-white transition duration-200 hover:cursor-pointer hover:bg-gray-800"

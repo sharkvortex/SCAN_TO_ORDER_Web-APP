@@ -3,7 +3,9 @@ import cors from "@fastify/cors";
 import { initSocket } from "./socket.js";
 const fastify = Fastify({ logger: true });
 import dotenv from 'dotenv';
+import cookie from "@fastify/cookie"
 dotenv.config();
+await fastify.register(cookie);
 
 await fastify.register(cors, {
   origin: ["http://localhost:5173"],
