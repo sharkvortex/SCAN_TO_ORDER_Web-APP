@@ -1,34 +1,95 @@
-import React from "react";
+import { useState } from "react";
 import { useFood } from "../../../../../hooks/Food/useFood";
-const mockFoods = [
-  { id: 1, name: "ข้าวผัดหมู", price: 60 },
-  { id: 2, name: "ต้มยำกุ้ง", price: 80 },
-  { id: 3, name: "ผัดไทย", price: 70 },
-  { id: 4, name: "แกงเขียวหวาน", price: 75 },
-];
-
-function FoodList() {
+import { ShoppingCart } from "lucide-react";
+import Category from "../../../../Category";
+import type { tableType } from "../../../../../Types/tableType";
+import type { Food } from "../../../../../Types/food";
+import ConfirmDialog from "../../../../Dialog/ConfirmDialog";
+function FoodList({ table }: { table: tableType }) {
   const { foods } = useFood();
-  console.log(foods);
+  const [selectedCategory, setSelectedCategory] = useState("ทั้งหมด");
+  const [selectedFood, setSelectedFood] = useState<Food>();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const filteredFoods =
+    selectedCategory === "ทั้งหมด"
+      ? foods
+      : foods.filter((f) => f.category.name === selectedCategory);
+
+  const handlerAddClick = (food: Food) => {
+    setSelectedFood(food);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (selectedFood) {
+      console.log("ส่งเมนูเข้าออเดอร์", selectedFood);
+      console.log("โต๊ะ", table);
+    }
+  };
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {mockFoods.map((food) => (
-        <div
-          key={food.id}
-          className="flex items-center justify-between rounded-xl border p-4 shadow-sm transition hover:shadow-md"
-        >
-          <div>
-            <h3 className="text-base font-semibold text-gray-800">
-              {food.name}
-            </h3>
-            <p className="text-sm text-gray-500">{food.price} บาท</p>
-          </div>
-          <button className="rounded-full bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
-            เพิ่ม
-          </button>
+    <>
+      {isConfirmOpen && (
+        <ConfirmDialog
+          type="success"
+          title="เพิ่มรายการอาหาร"
+          description={`ยืนยันเพิ่ม ${selectedFood?.name} ใช่หรือไม่?`}
+          cancelText="ยกเลิก"
+          confirmText="ยืนยัน"
+          onCancel={() => setIsConfirmOpen(false)}
+          onConfirm={() => handleConfirm()}
+        />
+      )}
+      <div className="space-y-6">
+        <Category
+          selected={selectedCategory}
+          onSelect={(cat) => setSelectedCategory(cat)}
+        />
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {filteredFoods.map((food) => (
+            <div
+              key={food.id}
+              className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all hover:border-gray-200"
+            >
+              <div className="relative h-48 w-full overflow-hidden bg-gray-50">
+                <img
+                  src={food.imageUrl}
+                  alt={food.name}
+                  className="h-full w-full object-contain transition-transform duration-300"
+                />
+              </div>
+
+              <div className="flex flex-1 flex-col p-4">
+                <div className="mb-2">
+                  <h3 className="line-clamp-1 text-lg font-semibold text-gray-900">
+                    {food.name}
+                  </h3>
+                  {food.description && (
+                    <p className="mt-1 line-clamp-2 text-sm text-gray-500">
+                      {food.description}
+                    </p>
+                  )}
+                </div>
+
+                <div className="mt-auto flex items-center justify-between pt-3">
+                  <span className={`font-semibold text-blue-600`}>
+                    {food.price}฿
+                  </span>
+
+                  <button
+                    onClick={() => handlerAddClick(food)}
+                    className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-600 transition-all hover:cursor-pointer hover:bg-green-100"
+                  >
+                    <ShoppingCart size={16} />
+                    <span>เพิ่ม</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      </div>
+    </>
   );
 }
 

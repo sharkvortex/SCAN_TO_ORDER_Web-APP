@@ -45,7 +45,7 @@ function Category({ selected, onSelect }: CategoryProps) {
                       buttonRefs.current[index] = el;
                     }}
                     onClick={() => handleSelect(cat.name, index)}
-                    className={`rounded-full border px-5 py-2 text-sm font-medium transition-all duration-300 ${
+                    className={`rounded-full border px-5 py-2 text-sm font-medium transition-all duration-300 hover:cursor-pointer ${
                       catSelected === cat.name
                         ? "border-blue-600 bg-blue-600 text-white"
                         : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"

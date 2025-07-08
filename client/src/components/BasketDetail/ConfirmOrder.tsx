@@ -83,7 +83,7 @@ function ConfirmOrder({ totalPrice, totalItems, onCancel }: ConfirmOrderProps) {
               <div className="mt-4 rounded-lg bg-gray-50 p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-gray-600">จำนวนรายการ</span>
-                  <span className="font-medium">{totalItems} ชิ้น</span>
+                  <span className="font-medium">{totalItems} รายการ</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">รวมทั้งหมด</span>

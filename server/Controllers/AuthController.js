@@ -20,56 +20,189 @@ export const verifyToken = async (request, reply) => {
   }
 };
 
+// Registration
+export const Register = async (request, reply) => {
+  const requiredFields = [
+    "firstName",
+    "lastName",
+    "email",
+    "username",
+    "password",
+  ];
+
+  const body = request.body || {};
+
+  const missingFields = requiredFields.filter(
+    (field) => !body[field] || body[field].toString().trim() === ""
+  );
+
+  if (missingFields.length > 0) {
+    return reply.status(400).send({
+      message: `${missingFields.join(", ")} ${missingFields.length === 1 ? "is" : "are"} required`,
+    });
+  }
+
+  const { firstName, lastName, email, username, password } = body;
+
+  const trimmedFirstName = firstName.trim();
+  const trimmedLastName = lastName.trim();
+  const trimmedUsername = username.trim().toLowerCase();
+  const trimmedEmail = email.trim().toLowerCase();
+  const trimmedPassword = password.trim();
+
+  if (trimmedFirstName.length < 3 || trimmedLastName.length < 3) {
+    return reply.status(400).send({
+      message: "firstName and lastName must be at least 3 characters long",
+    });
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+    return reply.status(400).send({
+      message: "email format is invalid",
+    });
+  }
+
+  if (trimmedEmail.startsWith("admin")) {
+    return reply.status(400).send({
+      message: "email cannot start with 'admin'",
+    });
+  }
+
+  if (trimmedUsername.length < 5) {
+    return reply.status(400).send({
+      message: "username must be at least 5 characters long",
+    });
+  }
+
+  if (trimmedUsername.startsWith("admin")) {
+    return reply.status(400).send({
+      message: "username cannot start with 'admin'",
+    });
+  }
+
+  const forbiddenUsernames = ["admin", "root", "system", "support", "staff"];
+  if (forbiddenUsernames.includes(trimmedUsername)) {
+    return reply.status(400).send({
+      message: "username is not allowed",
+    });
+  }
+
+  if (trimmedPassword.length < 6) {
+    return reply.status(400).send({
+      message: "password must be at least 6 characters long",
+    });
+  }
+
+  const weakPasswords = ["123456", "password", "qwerty", "admin", "abc123"];
+  if (weakPasswords.includes(trimmedPassword.toLowerCase())) {
+    return reply.status(400).send({
+      message: "password is too weak",
+    });
+  }
+
+  try {
+    const existingUserByEmail = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
+    if (existingUserByEmail) {
+      return reply.status(400).send({
+        message: "Email is already in use",
+      });
+    }
+    const existingUserByUsername = await prisma.user.findUnique({
+      where: { username: username.toLowerCase() },
+    });
+    if (existingUserByUsername) {
+      return reply.status(400).send({
+        message: "Username is already in use",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        firstName: firstName,
+        lastName: lastName,
+        email: email.toLowerCase(),
+        username: username.toLowerCase(),
+        password: hashedPassword,
+      },
+    });
+
+    return reply.status(201).send({
+      message: "User registered successfully",
+      username: newUser.username,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      message: "Internal Server Error",
+    });
+  }
+};
+
 export const Login = async (request, reply) => {
   const { username, password } = request.body;
 
   if (!username || !password) {
     return reply.status(400).send({
-      message: "Username and password are required!",
+      message: "username and password are required!",
     });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { username },
-  });
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: username.toLowerCase() },
+          { email: username.toLowerCase() },
+        ],
+      },
+    });
 
-  if (!user) {
-    return reply.status(404).send({ message: "Username not found." });
-  }
+    if (!user) {
+      return reply.status(404).send({
+        code: "USER_NOT_FOUND",
+        message: "Invalid username or email",
+      });
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return reply.status(401).send({
+        code: "INVALID_PASSWORD",
+        message: "Invalid password.",
+      });
+    }
 
-  // const isPasswordValid = await bcrypt.compare(password, user.password);
-  // if (!isPasswordValid) {
-  //   return reply.status(401).send({ message: "Incorrect password." });
-  // }
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
-  
-  const token = jwt.sign(
-    {
-      id: user.id,
+    reply.setCookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60,
+    });
+
+    return reply.send({
+      message: "Login successful.",
       username: user.username,
       role: user.role,
-    },
-    process.env.JWT_SECRET, 
-    {
-      expiresIn: "1h",
-    }
-  );
-
- 
-  reply.setCookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/", 
-    maxAge: 60 * 60, 
-  });
-
- 
-
-  return reply.send({
-    message: "Login successful.",
-    username: user.username,
-    role: user.role,
-    token
-  });
+      token,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      message: "Internal Server Error",
+    });
+  }
 };

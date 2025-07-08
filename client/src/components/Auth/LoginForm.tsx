@@ -14,32 +14,31 @@ function LoginForm() {
       ...prev,
       [name]: value,
     }));
-
   };
 
   const handlerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if(!formData.username){
-      return toast.error("กรุณากรอก Username")
-    }else if(!formData.password){
-      return toast.error("กรุณากรอก Password")
+    if (!formData.username) {
+      return toast.error("กรุณากรอก ชื่อผู้ใช้");
+    } else if (!formData.password) {
+      return toast.error("กรุณากรอก รหัสผ่าน");
     }
     try {
       await login(formData);
       setFormData({
         username: "",
-        password: ""
-      })
+        password: "",
+      });
     } catch (error) {
       console.log(error);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg">
-        <h2 className="mb-6 text-center text-2xl font-semibold text-gray-800">
-          Login
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-sm rounded-2xl p-6">
+        <h2 className="mb-6 text-center text-3xl font-semibold text-gray-800">
+          ระบบสั่งอาหาร, เข้าสู่ระบบ
         </h2>
 
         <form onSubmit={handlerSubmit} className="space-y-4">
@@ -48,42 +47,42 @@ function LoginForm() {
               htmlFor="username"
               className="block text-sm font-medium text-gray-700"
             >
-              Username
+              ชื่อผู้ใช้
             </label>
             <input
               type="text"
               id="username"
               name="username"
-              placeholder="Enter your username"
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none"
+              placeholder="กรอก ชื่อผู้ใช้ หรือ อีเมล"
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 outline-none"
               value={formData.username}
               onChange={handlerChange}
             />
           </div>
-         
+
           <div>
             <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Password
+              รหัสผ่าน
             </label>
             <input
               type="password"
               id="password"
               name="password"
               placeholder="••••••••"
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none"
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 outline-none"
               value={formData.password}
               onChange={handlerChange}
             />
           </div>
-          
+
           <button
             type="submit"
             className="w-full rounded-md bg-black px-4 py-2 font-medium text-white transition duration-200 hover:cursor-pointer hover:bg-gray-800"
           >
-            Sign In
+            เข้าสู่ระบบ
           </button>
         </form>
       </div>

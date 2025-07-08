@@ -1,4 +1,6 @@
 import axios from "axios";
+import toast from "react-hot-toast";
+
 export const useCallEmployee = () => {
   const callEmployee = async () => {
     const token = sessionStorage.getItem("token");
@@ -11,7 +13,8 @@ export const useCallEmployee = () => {
       });
       return response;
     } catch (error) {
-      throw error;
+      toast.error("เกิดข้อผิดพลาด");
+      console.log(error);
     }
   };
 

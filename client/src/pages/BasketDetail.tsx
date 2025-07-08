@@ -162,7 +162,7 @@ function BasketDetail() {
             />
             <div className="relative grid grid-cols-2">
               <button
-                className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
+                className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 hover:cursor-pointer ${
                   activeTab === "order"
                     ? "text-white"
                     : "text-gray-600 hover:text-blue-600"
@@ -173,7 +173,7 @@ function BasketDetail() {
                 ออเดอร์ของคุณ
               </button>
               <button
-                className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
+                className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 hover:cursor-pointer ${
                   activeTab === "history"
                     ? "text-white"
                     : "text-gray-600 hover:text-blue-600"
@@ -388,7 +388,7 @@ function BasketDetail() {
               <div>
                 <button
                   onClick={() => setOnConfirmOrder(true)}
-                  className="flex w-full transform items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-3 py-3 text-sm font-bold text-white transition-all duration-300 hover:cursor-pointer"
+                  className="flex w-full transform items-center justify-center gap-2 rounded bg-blue-600 px-3 py-3 text-sm font-bold text-white transition-all duration-300 hover:cursor-pointer"
                 >
                   <Check size={20} />
                   ยืนยันคำสั่งซื้อ ({totalPrice} ฿)

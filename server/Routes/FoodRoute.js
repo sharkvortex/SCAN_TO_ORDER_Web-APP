@@ -1,6 +1,6 @@
 import { getFood } from "../Controllers/FoodController.js";
 const FoodRoute = (fastify, options) => {
-  fastify.get("/food", getFood);
+  fastify.get("/foods", getFood);
 };
 
 export default FoodRoute;

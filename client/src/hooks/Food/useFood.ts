@@ -8,14 +8,13 @@ export const useFood = () => {
   const token = sessionStorage.getItem("token");
 
   const getFood = useCallback(async () => {
-    if (!token) return;
-
     try {
       setLoading(true);
-      const response = await axios.get(`/api/food`, {
+      const response = await axios.get(`/api/foods`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        withCredentials: true,
       });
 
       setFoods(response.data);
