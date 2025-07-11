@@ -9,6 +9,7 @@ import AdminUser from "./pages/admin/AdminUser";
 import LoginForm from "./components/Auth/LoginForm";
 // Middleware
 import VerifyToken from "./middleware/VerifyToken";
+import ProtectRoute from "./middleware/ProtectRoute";
 function App() {
   return (
     <Router>
@@ -33,8 +34,22 @@ function App() {
 
           <Route path="/auth/login" element={<LoginForm />} />
 
-          <Route path="/admin/pos" element={<Admin />} />
-          <Route path="/system/dashboard/users" element={<AdminUser />} />
+          <Route
+            path="/admin/pos"
+            element={
+              <ProtectRoute AllowRole={["ADMINISTRATOR", "ADMIN", "EMPLOYEE"]}>
+                <Admin />
+              </ProtectRoute>
+            }
+          />
+          <Route
+            path="/system/dashboard/users"
+            element={
+              <ProtectRoute AllowRole={["ADMINISTRATOR", "ADMIN"]}>
+                <AdminUser />
+              </ProtectRoute>
+            }
+          />
         </Routes>
       </SoundNotifyProvider>
     </Router>

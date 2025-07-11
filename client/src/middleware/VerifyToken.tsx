@@ -34,6 +34,7 @@ const VerifyToken = ({ children }: VerifyTokenProps) => {
         await verify(getToken);
         setIsValid(true);
       } catch (err) {
+        console.log(err);
         setIsValid(false);
       }
     };

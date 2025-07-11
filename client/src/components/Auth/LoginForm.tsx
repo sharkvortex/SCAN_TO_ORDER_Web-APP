@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { useLogin } from "../../hooks/Auth/useLogin";
+import { useNavigate } from "react-router-dom";
+
 function LoginForm() {
+  const navigate = useNavigate();
   const { login } = useLogin();
   const [formData, setFormData] = useState({
     username: "",
@@ -25,6 +28,7 @@ function LoginForm() {
     }
     try {
       await login(formData);
+      navigate("/admin/pos");
       setFormData({
         username: "",
         password: "",
@@ -38,7 +42,7 @@ function LoginForm() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-2xl p-6">
         <h2 className="mb-6 text-center text-3xl font-semibold text-gray-800">
-          ระบบสั่งอาหาร, เข้าสู่ระบบ
+          ระบบร้านค้า, เข้าสู่ระบบ
         </h2>
 
         <form onSubmit={handlerSubmit} className="space-y-4">

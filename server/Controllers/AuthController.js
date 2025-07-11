@@ -140,7 +140,7 @@ export const Register = async (request, reply) => {
     });
   }
 };
-
+// Login
 export const Login = async (request, reply) => {
   const { username, password } = request.body;
 
@@ -177,7 +177,10 @@ export const Login = async (request, reply) => {
     const token = jwt.sign(
       {
         id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
         username: user.username,
+        email: user.email,
         role: user.role,
       },
       process.env.JWT_SECRET,
@@ -203,6 +206,48 @@ export const Login = async (request, reply) => {
   } catch (error) {
     return reply.status(500).send({
       message: "Internal Server Error",
+    });
+  }
+};
+// Authentication User
+export const Authentication = (request, reply) => {
+  const authHeader = request.headers?.authorization;
+
+  let token;
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  }
+
+  if (!token && request.cookies?.token) {
+    token = request.cookies.token;
+  }
+
+  if (!token) {
+    return reply.status(401).send({
+      code: "TOKEN_NOT_FOUND",
+      message: "Token not provided",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    return reply.status(200).send({
+      code: "AUTH_SUCCESS",
+      user: {
+        id: decoded.id,
+        firstName: decoded.firstName,
+        lastName: decoded.lastName,
+        username: decoded.username,
+        email: decoded.email,
+        role: decoded.role,
+      },
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      code: "ERROR",
+      message: error?.message || "Internal Server Error",
     });
   }
 };

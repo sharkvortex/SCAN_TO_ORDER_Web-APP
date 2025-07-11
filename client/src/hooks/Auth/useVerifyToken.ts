@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 export const useVerifyToken = () => {
   const verify = async (token: string | null) => {
     if (!token) throw new Error("Token is missing");
@@ -10,12 +10,9 @@ export const useVerifyToken = () => {
         },
       });
       return response.data;
-    } catch (error: any) {
-      console.error(
-        "Verification error:",
-        error.response?.data || error.message,
-      );
-      throw error;
+    } catch (error) {
+      const err = error as AxiosError;
+      throw err;
     }
   };
 

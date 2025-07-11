@@ -2,20 +2,12 @@ import {
   FiUser,
   FiMail,
   FiCreditCard,
-  FiCalendar,
   FiLogOut,
   FiSettings,
 } from "react-icons/fi";
-
+import { useProtectRoute } from "../../../hooks/Auth/useProtectRoute";
 function PosHeader() {
-  const userData = {
-    username: "admin_somchai",
-    email: "somchai@example.com",
-    fullName: "สมชาย ดีมาก",
-    role: "พนักงาน",
-    joinDate: "2023-01-15",
-    lastLogin: "2023-11-25 09:45",
-  };
+  const { profile } = useProtectRoute();
 
   return (
     <header className="sticky top-0 z-40 bg-white">
@@ -52,9 +44,9 @@ function PosHeader() {
               </div>
               <div className="hidden text-left md:block">
                 <p className="text-sm font-medium text-gray-800">
-                  {userData.fullName}
+                  {profile?.firstName + profile?.lastName}
                 </p>
-                <p className="text-xs text-gray-500">{userData.role}</p>
+                <p className="text-xs text-gray-500">{profile.role}</p>
               </div>
             </button>
 
@@ -66,9 +58,9 @@ function PosHeader() {
                   </div>
                   <div>
                     <p className="font-medium text-gray-800">
-                      {userData.fullName}
+                      {profile?.firstName + profile?.lastName}
                     </p>
-                    <p className="text-xs text-gray-500">{userData.role}</p>
+                    <p className="text-xs text-gray-500">{profile.role}</p>
                   </div>
                 </div>
               </div>
@@ -76,18 +68,11 @@ function PosHeader() {
               <div className="space-y-2 border-b px-4 py-3">
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <FiMail className="text-gray-400" />
-                  <span>{userData.email}</span>
+                  <span>{profile?.email}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <FiCreditCard className="text-gray-400" />
-                  <span>@{userData.username}</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <FiCalendar className="text-gray-400" />
-                  <span>
-                    เข้าร่วมเมื่อ{" "}
-                    {new Date(userData.joinDate).toLocaleDateString("th-TH")}
-                  </span>
+                  <span>@{profile?.username}</span>
                 </div>
               </div>
 
