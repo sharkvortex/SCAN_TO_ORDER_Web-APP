@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { useMemo } from "react";
 import { LockKeyhole } from "lucide-react";
 import Loader from "../components/UI/Load/Loading";
-type Role = "ADMINISTRATOR" | "ADMIN" | "EMPLOYEE" | "GUEST" | null;
+type Role = "ADMINISTRATOR" | "ADMIN" | "EMPLOYEE" | "GUEST";
 
 interface ProtectRouteProps {
   children: React.ReactNode;
@@ -19,28 +19,21 @@ function ProtectRoute({ children, AllowRole }: ProtectRouteProps) {
     return Array.isArray(AllowRole) ? AllowRole : [AllowRole];
   }, [AllowRole]);
   const [accessDenied, setAccessDenied] = useState(false);
-
+  console.log(role);
+  console.log(loading);
+  console.log(responseCode);
   useEffect(() => {
     toast.dismiss();
-
     if (responseCode) {
-      if (responseCode.code === "TOKEN_NOT_FOUND") {
-        toast.error("กรุณาเข้าสู่ระบบ");
-        navigate("/auth/login");
-        return;
-      }
-
-      if (
-        responseCode.code === "ERROR" &&
-        (responseCode.message === "jwt expired" ||
-          responseCode.message === "invalid signature")
-      ) {
-        toast.error("กรุณาเข้าสู่ระบบใหม่อีกครั้ง");
-        navigate("/auth/login");
-        return;
+      switch (responseCode.code) {
+        case "TOKEN_NOT_FOUND":
+        case "TOKEN_EXPIRED":
+        case "TOKEN_INVALID":
+          toast.error("กรุณาเข้าสู่ระบบใหม่อีกครั้ง");
+          navigate("/auth/login", { replace: true });
+          return;
       }
     }
-
     if (!loading && role && !allowRoles.includes(role as Role)) {
       toast.error("ไม่มีสิทธิ์เข้าถึง");
       setAccessDenied(true);

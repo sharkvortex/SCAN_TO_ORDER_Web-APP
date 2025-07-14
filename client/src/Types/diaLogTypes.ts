@@ -1,3 +1,3 @@
 export interface diaLogTypes {
-     type: "info" | "warn" | "success" | "error";
+  type: "info" | "warn" | "success" | "error";
 }

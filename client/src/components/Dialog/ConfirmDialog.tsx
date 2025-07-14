@@ -12,7 +12,7 @@ interface ConfirmDialogTypes {
   description?: string;
   confirmText?: string;
   cancelText?: string;
-  type: diaLogTypes["type"]; 
+  type: diaLogTypes["type"];
 }
 
 const typeConfig = {
@@ -50,7 +50,7 @@ function ConfirmDialog({
   const { icon, bg, bgBtn } = typeConfig[type];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-3 backdrop-blur-sm">
       <div className="animate-in fade-in zoom-in-95 w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300">
         <div className="p-6">
           <div className="flex items-start gap-4">
@@ -61,7 +61,9 @@ function ConfirmDialog({
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-              {description && <p className="mt-1 text-gray-600">{description}</p>}
+              {description && (
+                <p className="mt-1 text-gray-600">{description}</p>
+              )}
             </div>
           </div>
         </div>
@@ -70,14 +72,14 @@ function ConfirmDialog({
           <div className="flex justify-end gap-3">
             <button
               onClick={onCancel}
-              className="flex items-center hover:cursor-pointer gap-2 rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 focus:outline-none"
+              className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-medium text-gray-700 transition hover:cursor-pointer hover:bg-gray-100 focus:outline-none"
             >
               <FaTimes className="text-gray-500" />
               {cancelText}
             </button>
             <button
               onClick={onConfirm}
-              className={`flex items-center hover:cursor-pointer gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition focus:outline-none ${bgBtn}`}
+              className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition hover:cursor-pointer focus:outline-none ${bgBtn}`}
             >
               <FaCheck />
               {confirmText}

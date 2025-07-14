@@ -9,8 +9,13 @@ import {
   deleteOrderId,
   cancelOrderAll,
 } from "../../Controllers/Admin/PosController.js";
+import { VerifyAdmin } from "../../middleware.js";
 const PosRoute = async (fastify, options) => {
-  fastify.post("/createQrcode/:tableNumber", createQrcode);
+  fastify.post(
+    "/createQrcode/:tableNumber",
+    { preHandler: VerifyAdmin },
+    createQrcode
+  );
   fastify.get("/getOrder/:orderId", getOrderByorderId);
   fastify.get("/getAll-Orders", getAllOrders);
   fastify.get("/history-orders/:tableNumber", getHistoryOrderByTableNumber);

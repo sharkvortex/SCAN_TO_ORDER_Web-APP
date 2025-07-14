@@ -41,8 +41,8 @@ function LoginForm() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-2xl p-6">
-        <h2 className="mb-6 text-center text-3xl font-semibold text-gray-800">
-          ระบบร้านค้า, เข้าสู่ระบบ
+        <h2 className="mb-6 text-center text-4xl font-semibold text-gray-800">
+          POS , เข้าสู่ระบบ
         </h2>
 
         <form onSubmit={handlerSubmit} className="space-y-4">

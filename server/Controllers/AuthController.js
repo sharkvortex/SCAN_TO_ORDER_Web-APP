@@ -211,17 +211,7 @@ export const Login = async (request, reply) => {
 };
 // Authentication User
 export const Authentication = (request, reply) => {
-  const authHeader = request.headers?.authorization;
-
-  let token;
-
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    token = authHeader.split(" ")[1];
-  }
-
-  if (!token && request.cookies?.token) {
-    token = request.cookies.token;
-  }
+  const token = request.cookies.token;
 
   if (!token) {
     return reply.status(401).send({
@@ -245,9 +235,23 @@ export const Authentication = (request, reply) => {
       },
     });
   } catch (error) {
-    return reply.status(500).send({
-      code: "ERROR",
-      message: error?.message || "Internal Server Error",
-    });
+    if (error.name === "TokenExpiredError") {
+      return reply.status(401).send({
+        code: "TOKEN_EXPIRED",
+        message: "Authentication token has expired. Please log in again",
+      });
+    } else if (error.name === "JsonWebTokenError") {
+      return reply.status(401).send({
+        code: "TOKEN_INVALID",
+        message: "Invalid authentication token",
+      });
+    } else {
+      return reply.status(500).send({
+        code: "SERVER_ERROR",
+        message: "Internal server error. Please try again later.",
+        error:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
+    }
   }
 };

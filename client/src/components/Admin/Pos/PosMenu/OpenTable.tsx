@@ -1,9 +1,9 @@
 import { BsQrCode } from "react-icons/bs";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import toast from "react-hot-toast";
 import { useCreateQrcode } from "../../../../hooks/Admin/useCreateQrcode";
 import { printTableQRCode } from "./PrintQRCodeForm";
+
 interface OpenTableProps {
   onClose: () => void;
   onSuccess: () => void;
@@ -12,7 +12,6 @@ interface OpenTableProps {
 
 function OpenTable({ onClose, table, onSuccess }: OpenTableProps) {
   const { createQrcode } = useCreateQrcode();
-
   const [isVisible, setIsVisible] = useState<boolean>(true);
 
   const handlerClose = () => {
@@ -24,15 +23,14 @@ function OpenTable({ onClose, table, onSuccess }: OpenTableProps) {
 
   const handlerCreateQr = async (tableNumber: number) => {
     try {
-      const qrUrl = await createQrcode(tableNumber);
+      const qrUrl = await createQrcode(tableNumber); // ถ้า error จะถูก interceptor แจ้ง toast
       if (qrUrl) {
         onSuccess();
         await printTableQRCode({ qrUrl, table: tableNumber });
         setIsVisible(false);
       }
     } catch (error) {
-      console.log(error);
-      toast.error("ไม่สามารถสร้างได้ลองใหม่อีกครั้ง");
+      console.error("Failed to create QR or print:", error);
     }
   };
 

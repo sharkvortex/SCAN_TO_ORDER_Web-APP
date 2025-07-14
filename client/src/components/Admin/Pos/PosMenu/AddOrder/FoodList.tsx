@@ -2,43 +2,19 @@ import { useState } from "react";
 import { useFood } from "../../../../../hooks/Food/useFood";
 import { ShoppingCart } from "lucide-react";
 import Category from "../../../../Category";
-import type { tableType } from "../../../../../Types/tableType";
+// import type { tableType } from "../../../../../Types/tableType";
 import type { Food } from "../../../../../Types/food";
-import ConfirmDialog from "../../../../Dialog/ConfirmDialog";
-function FoodList({ table }: { table: tableType }) {
+
+function FoodList({ onAddFood }: { onAddFood: (food: Food) => void }) {
   const { foods } = useFood();
   const [selectedCategory, setSelectedCategory] = useState("ทั้งหมด");
-  const [selectedFood, setSelectedFood] = useState<Food>();
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const filteredFoods =
     selectedCategory === "ทั้งหมด"
       ? foods
       : foods.filter((f) => f.category.name === selectedCategory);
 
-  const handlerAddClick = (food: Food) => {
-    setSelectedFood(food);
-    setIsConfirmOpen(true);
-  };
-
-  const handleConfirm = () => {
-    if (selectedFood) {
-      console.log("ส่งเมนูเข้าออเดอร์", selectedFood);
-      console.log("โต๊ะ", table);
-    }
-  };
   return (
     <>
-      {isConfirmOpen && (
-        <ConfirmDialog
-          type="success"
-          title="เพิ่มรายการอาหาร"
-          description={`ยืนยันเพิ่ม ${selectedFood?.name} ใช่หรือไม่?`}
-          cancelText="ยกเลิก"
-          confirmText="ยืนยัน"
-          onCancel={() => setIsConfirmOpen(false)}
-          onConfirm={() => handleConfirm()}
-        />
-      )}
       <div className="space-y-6">
         <Category
           selected={selectedCategory}
@@ -77,8 +53,8 @@ function FoodList({ table }: { table: tableType }) {
                   </span>
 
                   <button
-                    onClick={() => handlerAddClick(food)}
-                    className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-600 transition-all hover:cursor-pointer hover:bg-green-100"
+                    onClick={() => onAddFood(food)}
+                    className="flex items-center gap-1.5 rounded-full bg-green-50 px-5 py-1.5 text-sm font-medium text-green-600 transition-all hover:cursor-pointer hover:bg-green-100"
                   >
                     <ShoppingCart size={16} />
                     <span>เพิ่ม</span>

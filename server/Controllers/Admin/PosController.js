@@ -12,7 +12,14 @@ const clientUrl = process.env.CLIENT_URL;
 export const createQrcode = async (request, reply) => {
   const tableNumber = Number(request.params.tableNumber);
   const random = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 6);
-
+  const token = request.cookies.token;
+  console.log(token);
+  if (!token) {
+    return reply.status(400).send({
+      code: "TOKEN_NOT_FOUND",
+      message: "token is require",
+    });
+  }
   try {
     const table = await prisma.table.findUnique({
       where: { tableNumber },
@@ -86,8 +93,7 @@ export const createQrcode = async (request, reply) => {
     const qrCode = await Qrcode.toDataURL(url);
     return reply.status(200).send(qrCode);
   } catch (error) {
-    console.error("Error creating QR:", error);
-    return reply.status(500).send("Failed to create QR Code");
+    return reply.status(500).send({ message: "Internal Server Error" });
   }
 };
 // GetAllOrders
