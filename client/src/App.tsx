@@ -10,6 +10,7 @@ import LoginForm from "./components/Auth/LoginForm";
 // Middleware
 import VerifyToken from "./middleware/VerifyToken";
 import ProtectRoute from "./middleware/ProtectRoute";
+import ProtectRouteAuth from "./middleware/ProtectRouteAuth";
 function App() {
   return (
     <Router>
@@ -32,7 +33,14 @@ function App() {
             }
           />
 
-          <Route path="/auth/login" element={<LoginForm />} />
+          <Route
+            path="/auth/login"
+            element={
+              <ProtectRouteAuth>
+                <LoginForm />
+              </ProtectRouteAuth>
+            }
+          />
 
           <Route
             path="/admin/pos"

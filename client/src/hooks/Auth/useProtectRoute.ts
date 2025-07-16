@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import type { PrfileTypes } from "../../Types/UserTypes";
 export const useProtectRoute = () => {
   const location = useLocation();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [role, setRole] = useState<string>();
   const [responseCode, setResponseCode] = useState<{
     code: string;

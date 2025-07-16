@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+// For Customer
 export const verifyToken = async (request, reply) => {
   const authHeader = request.headers.authorization;
   const token = authHeader?.replace("Bearer ", "");

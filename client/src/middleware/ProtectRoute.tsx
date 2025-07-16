@@ -19,9 +19,6 @@ function ProtectRoute({ children, AllowRole }: ProtectRouteProps) {
     return Array.isArray(AllowRole) ? AllowRole : [AllowRole];
   }, [AllowRole]);
   const [accessDenied, setAccessDenied] = useState(false);
-  console.log(role);
-  console.log(loading);
-  console.log(responseCode);
   useEffect(() => {
     toast.dismiss();
     if (responseCode) {
