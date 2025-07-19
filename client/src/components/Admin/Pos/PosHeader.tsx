@@ -8,8 +8,9 @@ import {
 } from "react-icons/fi";
 import { useProtectRoute } from "../../../hooks/Auth/useProtectRoute";
 import { useState, useRef, useEffect } from "react";
-
+import { useLogout } from "@/hooks/Auth/useLogout";
 function PosHeader() {
+  const { logout } = useLogout();
   const { profile } = useProtectRoute();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -32,6 +33,13 @@ function PosHeader() {
 
   if (!profile) return null;
 
+  const handlerLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <header className="sticky top-0 z-40 bg-white transition-all duration-300">
       <div className="container mx-auto px-6 py-3">
@@ -120,7 +128,10 @@ function PosHeader() {
                   <FiSettings className="text-gray-500" />
                   <span>ตั้งค่าบัญชี</span>
                 </button>
-                <button className="flex w-full items-center space-x-2 rounded-md px-3 py-2 text-sm text-red-600 transition-colors duration-200 hover:cursor-pointer hover:bg-red-50">
+                <button
+                  onClick={() => handlerLogout()}
+                  className="flex w-full items-center space-x-2 rounded-md px-3 py-2 text-sm text-red-600 transition-colors duration-200 hover:cursor-pointer hover:bg-red-50"
+                >
                   <FiLogOut className="text-red-500" />
                   <span>ออกจากระบบ</span>
                 </button>

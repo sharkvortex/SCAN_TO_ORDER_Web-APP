@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Food } from "../Types/food";
+import type { Food } from "../types/food";
 import Category from "./Category";
 import Basket from "./Basket";
 import DetailData from "./DetailData";

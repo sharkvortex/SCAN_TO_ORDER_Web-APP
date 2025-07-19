@@ -4,7 +4,7 @@ import {
   FaInfoCircle,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import type { diaLogTypes } from "../../Types/diaLogTypes";
+import type { diaLogTypes } from "../../types/diaLogTypes";
 interface ConfirmDialogTypes {
   onCancel: () => void;
   onConfirm: () => void;
@@ -72,14 +72,14 @@ function ConfirmDialog({
           <div className="flex justify-end gap-3">
             <button
               onClick={onCancel}
-              className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-medium text-gray-700 transition hover:cursor-pointer hover:bg-gray-100 focus:outline-none"
+              className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-medium text-gray-700 transition hover:cursor-pointer hover:bg-gray-100 focus:outline-none active:scale-95"
             >
               <FaTimes className="text-gray-500" />
               {cancelText}
             </button>
             <button
               onClick={onConfirm}
-              className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition hover:cursor-pointer focus:outline-none ${bgBtn}`}
+              className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition hover:cursor-pointer focus:outline-none active:scale-95 ${bgBtn}`}
             >
               <FaCheck />
               {confirmText}

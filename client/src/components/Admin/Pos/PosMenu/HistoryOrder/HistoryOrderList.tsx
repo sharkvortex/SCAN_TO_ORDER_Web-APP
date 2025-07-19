@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 import { BsClockHistory } from "react-icons/bs";
 import { FiTrash2 } from "react-icons/fi";
-import type { HistoryFoodType } from "../../../../../Types/food";
+import type { HistoryFoodType } from "../../../../../types/food";
 import { useChangeStatus } from "../../../../../hooks/Admin/useChangeStatus";
 import toast from "react-hot-toast";
 import socket from "../../../../Sokcet/soket";
 import ConfirmDialog from "../../../../Dialog/ConfirmDialog";
 import { useState } from "react";
-import type { diaLogTypes } from "../../../../../Types/diaLogTypes";
+import type { diaLogTypes } from "../../../../../types/diaLogTypes";
 import { useDeleteOrder } from "../../../../../hooks/Admin/useDeleteOrder";
 interface HistoryOrderListTypes {
   loading: boolean;
@@ -201,7 +201,7 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                       <div className="mt-2 rounded px-2 py-1">
                         <p className="text-sm text-gray-600">
                           หมายเหตุ: {""}
-                          <span className="font-semibold text-red-500">
+                          <span className="rounded bg-red-500 px-1 font-semibold text-white">
                             {order.note}
                           </span>
                         </p>
@@ -218,7 +218,7 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                           onClick={() =>
                             changeStatusOrder(order.id, "CONFIRMED")
                           }
-                          className="w-full rounded-md bg-green-600 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-green-700"
+                          className="w-full rounded-md bg-green-600 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-green-700 active:scale-95"
                         >
                           รับออเดอร์
                         </button>
@@ -227,7 +227,7 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                             setActionType("cancel");
                             setSelectedId(order.id);
                           }}
-                          className="w-full rounded-md bg-red-500 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-red-600"
+                          className="w-full rounded-md bg-red-500 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-red-600 active:scale-95"
                         >
                           ยกเลิก
                         </button>
@@ -238,7 +238,7 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                       <>
                         <button
                           onClick={() => changeStatusOrder(order.id, "SERVED")}
-                          className="w-full rounded-md bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-blue-700"
+                          className="w-full rounded-md bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-blue-700 active:scale-95"
                         >
                           เสิร์ฟแล้ว
                         </button>
@@ -247,7 +247,7 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                             setActionType("cancel");
                             setSelectedId(order.id);
                           }}
-                          className="w-full rounded-md bg-red-500 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-red-600"
+                          className="w-full rounded-md bg-red-500 px-3 py-2 text-xs font-medium text-white hover:cursor-pointer hover:bg-red-600 active:scale-95"
                         >
                           ยกเลิก
                         </button>
@@ -261,7 +261,7 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                         setActionType("delete");
                         setSelectedId(order.id);
                       }}
-                      className="mt-1 flex items-center gap-1 text-sm text-red-600 transition-colors hover:cursor-pointer hover:text-red-800"
+                      className="mt-1 flex items-center gap-1 text-sm text-red-600 transition-colors hover:cursor-pointer hover:text-red-800 active:scale-95"
                     >
                       <FiTrash2 size={16} />
                       <span className="text-xs">ลบ</span>

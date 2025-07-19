@@ -53,7 +53,7 @@ export const createQrcode = async (request, reply) => {
           createNew = true;
         } else {
           token = jwt.sign({ tableNumber, orderId }, jwtsecret, {
-            expiresIn: "5h",
+            expiresIn: "4h",
           });
 
           await prisma.table.update({
@@ -393,6 +393,160 @@ export const deleteOrderId = async (request, reply) => {
   } catch (error) {
     return reply.status(500).send({
       message: "Internal Server Error",
+    });
+  }
+};
+
+// Add Order fromAdmin by tableNumber
+export const addOrderbyTableNumber = async (request, reply) => {
+  try {
+    const { data, tableNumber } = request.body;
+
+    if (!data || !tableNumber) {
+      return reply.status(400).send({
+        code: "NOT_FOUND_DATA",
+        message: "No data or tableNumber found",
+      });
+    }
+
+    const table = await prisma.table.findUnique({
+      where: {
+        tableNumber: tableNumber,
+      },
+    });
+
+    if (!table) {
+      return reply.status(404).send({
+        code: "TABLE_NOT_FOUND",
+        message: `Not found tableNumber: ${tableNumber}`,
+      });
+    }
+
+    if (!table.orderId) {
+      return reply.status(400).send({
+        code: "ORDER_ID_NOT_FOUND",
+        message: `No orderId on table: ${tableNumber}`,
+      });
+    }
+
+    const orderSession = await prisma.orderSession.findUnique({
+      where: {
+        orderId: table.orderId,
+      },
+    });
+
+    if (!orderSession) {
+      return reply.status(404).send({
+        code: "ORDER_SESSION_NOT_FOUND",
+        message: "No orderSession for this orderId",
+      });
+    }
+
+    const foodIds = data.orderItems.map((item) => item.id);
+
+    const foods = await prisma.food.findMany({
+      where: {
+        id: {
+          in: foodIds,
+        },
+      },
+    });
+
+    const groupedOrderItems = [];
+
+    for (const item of data.orderItems) {
+      const existing = groupedOrderItems.find(
+        (o) => o.id === item.id && o.note.trim() === item.note.trim()
+      );
+
+      if (existing) {
+        existing.quantity += item.quantity;
+      } else {
+        groupedOrderItems.push({ ...item });
+      }
+    }
+
+    const orderItemsData = groupedOrderItems.map((item) => {
+      const food = foods.find((f) => f.id === item.id);
+
+      return {
+        orderSessionId: orderSession.id,
+        foodId: item.id,
+        foodName: food?.name || "",
+        foodPrice: food?.price || 0,
+        quantity: item.quantity,
+        note: item.note || "",
+      };
+    });
+    await prisma.order.createMany({
+      data: orderItemsData,
+    });
+    io.emit("add-orders", tableNumber);
+    return reply.status(201).send({
+      code: "ORDER_SUCCESS",
+      message: "Add Order successfully",
+    });
+  } catch (error) {
+    console.error("Error in addOrderbyTableNumber:", error);
+    return reply.status(500).send({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "เกิดข้อผิดพลาดภายในระบบ",
+    });
+  }
+};
+
+// ReverveTable
+export const reserveTable = async (request, reply) => {
+  const { tableNumber, note } = request.body;
+
+  if (!tableNumber || !note?.trim()) {
+    return reply.status(400).send({
+      code: "DATA_NOT_FOUND",
+      message: "Table number and note are required.",
+    });
+  }
+
+  try {
+    const table = await prisma.table.findUnique({
+      where: {
+        tableNumber: tableNumber,
+      },
+    });
+
+    if (!table) {
+      return reply.status(404).send({
+        code: "TABLE_NOT_FOUND",
+        message: `Table number ${tableNumber} was not found.`,
+      });
+    }
+
+    if (table.status !== "AVAILABLE") {
+      return reply.status(400).send({
+        code: "TABLE_NOT_AVAILABLE",
+        message: `Table number ${tableNumber} is not available for reservation.`,
+      });
+    }
+
+    await prisma.table.update({
+      where: {
+        tableNumber: tableNumber,
+      },
+      data: {
+        status: "RESERVED",
+        note: note,
+      },
+    });
+
+    return reply.status(200).send({
+      code: "SUCCESS",
+      message: "Table reserved successfully.",
+    });
+  } catch (error) {
+    console.error("Reserve Table Error:", error);
+    return reply.status(500).send({
+      code: "SERVER_INTERNAL_ERROR",
+      message:
+        error?.message || "Internal server error. Please try again later.",
     });
   }
 };

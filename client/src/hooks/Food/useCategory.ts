@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import type { CategoryTypes } from "../../Types/food";
+import type { CategoryTypes } from "../../types/food";
 export const useCategory = () => {
   const [categry, setCategory] = useState<CategoryTypes[]>([]);
   const [loading, setLoading] = useState<boolean>(false);

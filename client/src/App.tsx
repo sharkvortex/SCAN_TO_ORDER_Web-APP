@@ -11,6 +11,7 @@ import LoginForm from "./components/Auth/LoginForm";
 import VerifyToken from "./middleware/VerifyToken";
 import ProtectRoute from "./middleware/ProtectRoute";
 import ProtectRouteAuth from "./middleware/ProtectRouteAuth";
+
 function App() {
   return (
     <Router>

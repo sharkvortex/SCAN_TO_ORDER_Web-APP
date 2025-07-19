@@ -186,16 +186,16 @@ export const Login = async (request, reply) => {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: "1d",
       }
     );
 
     reply.setCookie("token", token, {
       httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60,
+      maxAge: 60 * 60 * 24,
     });
 
     return reply.send({
@@ -208,6 +208,22 @@ export const Login = async (request, reply) => {
     return reply.status(500).send({
       message: "Internal Server Error",
     });
+  }
+};
+// Logout
+export const Logout = async (request, reply) => {
+  try {
+    reply.clearCookie("token", {
+      path: "/",
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    return reply.send({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    return reply.status(500).send({ error: "Logout failed" });
   }
 };
 // Authentication User

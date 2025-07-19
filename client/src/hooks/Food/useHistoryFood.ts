@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import socket from "../../components/Sokcet/soket";
-import type { HistoryFoodType } from "../../Types/food";
+import type { HistoryFoodType } from "../../types/food";
 export const useHistoryFood = () => {
   const [orders, setOrders] = useState<HistoryFoodType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

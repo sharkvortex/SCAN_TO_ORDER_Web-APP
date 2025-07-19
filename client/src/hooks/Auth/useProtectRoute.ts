@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import type { PrfileTypes } from "../../Types/UserTypes";
+import type { PrfileTypes } from "../../types/UserTypes";
 export const useProtectRoute = () => {
   const location = useLocation();
   const [loading, setLoading] = useState<boolean>(true);

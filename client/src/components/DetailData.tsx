@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import type { Food } from "../Types/food";
+import type { Food } from "../types/food";
 import { IoIosClose } from "react-icons/io";
 import IconDefault from "../assets/food-menu-3-svgrepo-com.png";
 interface FoodTypes {

@@ -3,14 +3,15 @@ import { PlusCircle, Clock, DollarSign, User, Edit2, X } from "lucide-react";
 import OpenTable from "./PosMenu/OpenTable";
 import HistoryOrder from "./PosMenu/HistoryOrder/HistoryOrder";
 import { AnimatePresence, motion } from "framer-motion";
-import type { tableType } from "../../../Types/tableType";
+import type { tableType } from "../../../types/tableType";
 import AddOrder from "./PosMenu/AddOrder/AddOrder";
+import ReserveTable from "./PosMenu/Reserve/ReserveTable";
 interface PosMenuTypes {
   onClose: () => void;
-  createSuccess: () => void;
+  onSuccess: () => void;
   table: tableType;
 }
-const PosMenu = ({ table, onClose, createSuccess }: PosMenuTypes) => {
+const PosMenu = ({ table, onClose, onSuccess }: PosMenuTypes) => {
   const [status, setStatus] = useState(table?.status?.toLowerCase() || "");
   const isAvailable = status === "available";
   const isOccupied = status === "occupied";
@@ -115,16 +116,18 @@ const PosMenu = ({ table, onClose, createSuccess }: PosMenuTypes) => {
                 {activeModal === "createQrocde" && (
                   <OpenTable
                     table={table?.tableNumber}
-                    onClose={() => setActiveModal(null)}
+                    onClose={() => {
+                      setActiveModal(null);
+                    }}
                     onSuccess={() => {
-                      createSuccess();
+                      onSuccess();
                       setStatus("occupied");
                     }}
                   />
                 )}
                 <button
                   onClick={() => handlerOpenTable()}
-                  className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm"
+                  className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm active:scale-95"
                 >
                   <div className="flex flex-col items-center space-y-2 text-center">
                     <div className="rounded-xl bg-blue-50 p-3 transition-colors group-hover:bg-blue-100">
@@ -139,18 +142,16 @@ const PosMenu = ({ table, onClose, createSuccess }: PosMenuTypes) => {
                 {activeModal === "addOrder" && (
                   <AddOrder
                     table={table}
-                    onClose={() => setActiveModal(null)}
+                    onClose={() => {
+                      setActiveModal(null);
+                      onClose();
+                    }}
                   />
                 )}
-                {activeModal === "orderHistory" && (
-                  <HistoryOrder
-                    table={table}
-                    onClose={() => setActiveModal(null)}
-                  />
-                )}
+
                 <button
                   onClick={() => handlerOpenHistory()}
-                  className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm"
+                  className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm active:scale-95"
                 >
                   <div className="flex flex-col items-center space-y-2 text-center">
                     <div className="rounded-xl bg-purple-50 p-3 transition-colors group-hover:bg-purple-100">
@@ -161,9 +162,15 @@ const PosMenu = ({ table, onClose, createSuccess }: PosMenuTypes) => {
                     </span>
                   </div>
                 </button>
+                {activeModal === "orderHistory" && (
+                  <HistoryOrder
+                    table={table}
+                    onClose={() => setActiveModal(null)}
+                  />
+                )}
 
                 {isOccupied && (
-                  <button className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm">
+                  <button className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm active:scale-95">
                     <div className="flex flex-col items-center space-y-2 text-center">
                       <div className="rounded-xl bg-green-50 p-3 transition-colors group-hover:bg-green-100">
                         <DollarSign className="h-5 w-5 text-green-600" />
@@ -178,7 +185,7 @@ const PosMenu = ({ table, onClose, createSuccess }: PosMenuTypes) => {
                 {isAvailable && (
                   <button
                     onClick={() => handlerReserved()}
-                    className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm"
+                    className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm active:scale-95"
                   >
                     <div className="flex flex-col items-center space-y-2 text-center">
                       <div className="rounded-xl bg-orange-50 p-3 transition-colors group-hover:bg-orange-100">
@@ -190,8 +197,19 @@ const PosMenu = ({ table, onClose, createSuccess }: PosMenuTypes) => {
                     </div>
                   </button>
                 )}
+                {activeModal === "reservedTable" && (
+                  <ReserveTable
+                    tableNumber={table.tableNumber}
+                    onClose={() => setActiveModal(null)}
+                    onSuccess={() => {
+                      onSuccess();
+                      setStatus("reserved");
+                      onClose();
+                    }}
+                  />
+                )}
 
-                <button className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm">
+                <button className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm active:scale-95">
                   <div className="flex flex-col items-center space-y-2 text-center">
                     <div className="rounded-xl bg-gray-50 p-3 transition-colors group-hover:bg-gray-100">
                       <Edit2 className="h-5 w-5 text-gray-600" />
@@ -207,7 +225,7 @@ const PosMenu = ({ table, onClose, createSuccess }: PosMenuTypes) => {
             <div className="p-6 pt-0">
               <button
                 onClick={handleClose}
-                className="w-full rounded-2xl bg-gray-50 py-3 font-medium text-gray-700 transition-colors duration-200 hover:cursor-pointer hover:bg-gray-100"
+                className="w-full rounded-2xl bg-gray-50 py-3 font-medium text-gray-700 transition-colors duration-200 hover:cursor-pointer hover:bg-gray-100 active:scale-95"
               >
                 ปิดเมนู
               </button>

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useCallback } from "react";
-import type { HistoryFoodType } from "../../Types/food";
+import type { HistoryFoodType } from "../../types/food";
 
 export const useHistoryOrder = () => {
   const [historyOrder, setHistoryOrder] = useState<HistoryFoodType[]>([]);

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { tableType } from "../../../../../Types/tableType";
-import type { Food } from "../../../../../Types/food";
+import type { tableType } from "@/types/tableType";
+import type { Food } from "@/types/food";
 import FoodList from "./FoodList";
 import { X } from "lucide-react";
 import ListAddOrder from "./ListAddOrder";
@@ -36,10 +36,13 @@ function AddOrder({
   };
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-white">
-      {/* ปุ่มลอยสำหรับดูรายการ */}
-      <ListAddOrder orderItems={orderItems} />
+      <ListAddOrder
+        orderItems={orderItems}
+        table={table}
+        onSuccess={onClose}
+        onChangeItems={(items) => setOrderItems(items)}
+      />
 
-      {/* Header */}
       <div className="flex items-center justify-between px-6 py-4">
         <h2 className="text-2xl font-bold text-gray-800">
           เพิ่มออเดอร์โต๊ะ{" "}
@@ -53,7 +56,6 @@ function AddOrder({
         </button>
       </div>
 
-      {/* Food list */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
         <FoodList onAddFood={handleAddFood} />
       </div>

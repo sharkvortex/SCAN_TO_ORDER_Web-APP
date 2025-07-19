@@ -1,15 +1,18 @@
 import axios, { AxiosError } from "axios";
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 export const useLogin = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false)
   const login = async (formData: { username: string; password: string }) => {
     if (!formData) return;
     setLoading(true)
     try {
       const response = await axios.post("/api/auth/login", formData);
-
+      if (response.status === 200) {
+        navigate('/admin/pos')
+      }
       return response.data;
     } catch (error: unknown) {
       const err = error as AxiosError<{ code: string }>;

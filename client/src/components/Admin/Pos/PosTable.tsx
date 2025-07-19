@@ -4,7 +4,10 @@ import { useGetTable } from "../../../hooks/Admin/useGetTable";
 import { useSoundNotify } from "../../../contexts/SoundContext/SoundNotifyContext";
 import { MdTableBar, MdNotificationsActive } from "react-icons/md";
 import { motion } from "framer-motion";
-import type { tableType } from "../../../Types/tableType";
+import type { tableType } from "../../../types/tableType";
+import socket from "@/components/Sokcet/soket";
+import toast from "react-hot-toast";
+import addOrderSound from "@/assets/sounds/add-order.mp3";
 function TableData() {
   const { tables, fetchTables } = useGetTable();
   const [selectedTable, setSelectedTable] = useState<tableType | null>(null);
@@ -43,14 +46,33 @@ function TableData() {
         return "ไม่ทราบสถานะ";
     }
   };
+  const soundAddOrderRef = new Audio(addOrderSound);
+  useEffect(() => {
+    const onAddOrder = async (tableNumber: number) => {
+      setNotifiedTables((prev) => [...new Set([...prev, tableNumber])]);
+      toast.success(`ออเดอร์ใหม่ โต๊ะ ${tableNumber}`);
+
+      try {
+        await soundAddOrderRef.play();
+      } catch (error) {
+        console.error("เล่นเสียงล้มเหลว:", error);
+      }
+    };
+
+    socket.on("add-orders", onAddOrder);
+
+    return () => {
+      socket.off("add-orders", onAddOrder);
+    };
+  }, []);
 
   useEffect(() => {
-    if (newOrderNotify) {
+    if (newOrderNotify?.tableNumber) {
       setNotifiedTables((prev) => [
         ...new Set([...prev, newOrderNotify.tableNumber]),
       ]);
     }
-  }, [newOrderNotify?.timestamp, newOrderNotify]);
+  }, [newOrderNotify?.timestamp]);
 
   return (
     <>
@@ -61,7 +83,7 @@ function TableData() {
               <div
                 onClick={() => handleTableClick(table)}
                 key={table.id}
-                className={`relative flex aspect-[4/3] cursor-pointer flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-center shadow-sm transition-all hover:ring-2 hover:ring-gray-300 ${
+                className={`relative flex aspect-[4/3] cursor-pointer flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-center transition-all hover:ring-2 hover:ring-gray-300 active:scale-95 ${
                   notifiedTables.includes(table.tableNumber)
                     ? "animate-pulse ring-2 ring-red-500"
                     : ""
@@ -118,7 +140,7 @@ function TableData() {
           onClose={() => {
             setSelectedTable(null);
           }}
-          createSuccess={() => fetchTables()}
+          onSuccess={() => fetchTables()}
         />
       )}
     </>

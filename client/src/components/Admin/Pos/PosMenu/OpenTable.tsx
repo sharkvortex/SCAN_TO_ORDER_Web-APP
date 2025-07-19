@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCreateQrcode } from "../../../../hooks/Admin/useCreateQrcode";
 import { printTableQRCode } from "./PrintQRCodeForm";
+import toast from "react-hot-toast";
 
 interface OpenTableProps {
   onClose: () => void;
@@ -23,14 +24,16 @@ function OpenTable({ onClose, table, onSuccess }: OpenTableProps) {
 
   const handlerCreateQr = async (tableNumber: number) => {
     try {
-      const qrUrl = await createQrcode(tableNumber); // ถ้า error จะถูก interceptor แจ้ง toast
+      const qrUrl = await createQrcode(tableNumber);
       if (qrUrl) {
         onSuccess();
         await printTableQRCode({ qrUrl, table: tableNumber });
         setIsVisible(false);
+        toast.success("สร้างคิวอาร์โค้ดสำเร็จ");
       }
     } catch (error) {
       console.error("Failed to create QR or print:", error);
+      toast.error("สร้างคิวอาร์โค้ดไม่สำเร็จ");
     }
   };
 
@@ -54,7 +57,7 @@ function OpenTable({ onClose, table, onSuccess }: OpenTableProps) {
             </h2>
 
             <button
-              className="flex w-full items-center justify-center gap-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3 text-lg font-semibold text-white shadow transition-all duration-200 hover:cursor-pointer"
+              className="flex w-full items-center justify-center gap-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3 text-lg font-semibold text-white shadow transition-all duration-200 hover:cursor-pointer active:scale-95"
               onClick={() => handlerCreateQr(table)}
             >
               <BsQrCode className="text-2xl" />
@@ -62,7 +65,7 @@ function OpenTable({ onClose, table, onSuccess }: OpenTableProps) {
             </button>
 
             <button
-              className="w-full rounded-lg border border-gray-300 bg-white px-6 py-2 text-gray-700 transition hover:cursor-pointer hover:bg-gray-100"
+              className="w-full rounded-lg border border-gray-300 bg-white px-6 py-2 text-gray-700 transition hover:cursor-pointer hover:bg-gray-100 active:scale-95"
               onClick={handlerClose}
             >
               ยกเลิก

@@ -18,8 +18,8 @@ import socket from "../../../../Sokcet/soket";
 import toast from "react-hot-toast";
 import { AnimatePresence, motion } from "framer-motion";
 // Types
-import type { tableType } from "../../../../../Types/tableType";
-import type { diaLogTypes } from "../../../../../Types/diaLogTypes";
+import type { tableType } from "../../../../../types/tableType";
+import type { diaLogTypes } from "../../../../../types/diaLogTypes";
 interface HistoryOrderTypes {
   onClose: () => void;
   table: tableType;
@@ -223,7 +223,7 @@ const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
                     <button
                       onClick={() => setActionType("served")}
                       disabled={hasPending}
-                      className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm text-white transition-colors ${hasPending ? "cursor-not-allowed bg-gray-300 hover:bg-gray-200" : "cursor-pointer bg-blue-600 hover:cursor-pointer hover:bg-blue-700"}`}
+                      className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm text-white transition-colors active:scale-95 ${hasPending ? "cursor-not-allowed bg-gray-300 hover:bg-gray-200" : "cursor-pointer bg-blue-600 hover:cursor-pointer hover:bg-blue-700"}`}
                     >
                       <GiHotMeal size={20} />
                       เสิร์ฟแล้วทั้งหมด
@@ -235,13 +235,13 @@ const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
                     <>
                       <button
                         onClick={() => setActionType("recevice")}
-                        className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition-colors hover:cursor-pointer hover:bg-green-700"
+                        className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition-colors hover:cursor-pointer hover:bg-green-700 active:scale-95"
                       >
                         <ImCheckmark size={20} /> รับออเดอร์ทั้งหมด
                       </button>
                       <button
                         onClick={() => setActionType("cancel")}
-                        className="flex items-center gap-2 rounded-lg bg-red-400 px-4 py-2 text-sm text-white hover:cursor-pointer hover:bg-red-500"
+                        className="flex items-center gap-2 rounded-lg bg-red-400 px-4 py-2 text-sm text-white hover:cursor-pointer hover:bg-red-500 active:scale-95"
                       >
                         <IoClose size={20} /> ยกเลิกทั้งหมด
                       </button>
@@ -257,7 +257,7 @@ const HistoryOrder = ({ table, onClose }: HistoryOrderTypes) => {
             <div className="mt-6 pt-4">
               <button
                 onClick={handlerClose}
-                className="w-full rounded-lg bg-gray-200 py-3 text-gray-500 transition-colors hover:cursor-pointer hover:bg-gray-300"
+                className="w-full rounded-lg bg-gray-200 py-3 text-gray-500 transition-colors hover:cursor-pointer hover:bg-gray-300 active:scale-95"
               >
                 ปิด
               </button>

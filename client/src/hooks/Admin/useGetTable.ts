@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
-import type { tableType } from "../../Types/tableType";
+import type { tableType } from "../../types/tableType";
 
 export const useGetTable = () => {
   const [tables, setTables] = useState<tableType[]>([]);

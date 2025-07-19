@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { useLogin } from "../../hooks/Auth/useLogin";
-import { useNavigate } from "react-router-dom";
+
 import Loader from "../UI/Load/Loading";
 
 function LoginForm() {
-  const navigate = useNavigate();
   const { login, loading } = useLogin();
   const [formData, setFormData] = useState({
     username: "",
@@ -29,11 +28,6 @@ function LoginForm() {
     }
     try {
       await login(formData);
-      navigate("/admin/pos");
-      setFormData({
-        username: "",
-        password: "",
-      });
     } catch (error) {
       console.log(error);
     }
@@ -89,7 +83,7 @@ function LoginForm() {
             className={`min-h-[40px] w-full rounded-md bg-black ${loading ? "hover:cursor-not-allowed" : "hover:cursor-pointer hover:bg-gray-800"} px-4 py-2 font-medium text-white transition duration-200`}
           >
             {loading ? (
-              <div className="relative min-h-6">
+              <div className="relative min-h-6 active:scale-95">
                 <Loader />
               </div>
             ) : (

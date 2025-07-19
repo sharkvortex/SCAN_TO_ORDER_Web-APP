@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useEffect, useCallback } from "react";
-import type { Food } from "../../Types/food";
+import type { Food } from "../../types/food";
 
 export const useFood = () => {
   const [foods, setFoods] = useState<Food[]>([]);
