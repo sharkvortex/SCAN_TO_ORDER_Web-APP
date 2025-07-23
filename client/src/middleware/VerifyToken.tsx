@@ -40,7 +40,7 @@ const VerifyToken = ({ children }: VerifyTokenProps) => {
     };
 
     fetch();
-  }, [location.search, location.pathname]);
+  }, [location.search, location.pathname, Date.now()]);
 
   if (isValid === null) {
     return (

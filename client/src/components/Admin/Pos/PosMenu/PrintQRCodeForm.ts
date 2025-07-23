@@ -28,7 +28,7 @@ export const printTableQRCode = ({
   const logoUrl =
     "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg";
 
-  // ขนาดตามกระดาษ
+
   const sizeConfig = {
     58: {
       width: 58,

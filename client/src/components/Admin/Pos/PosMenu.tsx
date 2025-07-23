@@ -3,9 +3,10 @@ import { PlusCircle, Clock, DollarSign, User, Edit2, X } from "lucide-react";
 import OpenTable from "./PosMenu/OpenTable";
 import HistoryOrder from "./PosMenu/HistoryOrder/HistoryOrder";
 import { AnimatePresence, motion } from "framer-motion";
-import type { tableType } from "../../../types/tableType";
+import type { tableType } from "@/types/tableType";
 import AddOrder from "./PosMenu/AddOrder/AddOrder";
 import ReserveTable from "./PosMenu/Reserve/ReserveTable";
+import ManageTable from "./PosMenu/ManageTable/ManageTable";
 interface PosMenuTypes {
   onClose: () => void;
   onSuccess: () => void;
@@ -47,7 +48,12 @@ const PosMenu = ({ table, onClose, onSuccess }: PosMenuTypes) => {
     return "ไม่ทราบสถานะ";
   };
   const [activeModal, setActiveModal] = useState<
-    null | "createQrocde" | "orderHistory" | "reservedTable" | "addOrder"
+    | null
+    | "createQrocde"
+    | "orderHistory"
+    | "reservedTable"
+    | "addOrder"
+    | "manageTable"
   >(null);
 
   const handlerOpenTable = () => {
@@ -209,7 +215,10 @@ const PosMenu = ({ table, onClose, onSuccess }: PosMenuTypes) => {
                   />
                 )}
 
-                <button className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm active:scale-95">
+                <button
+                  onClick={() => setActiveModal("manageTable")}
+                  className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm active:scale-95"
+                >
                   <div className="flex flex-col items-center space-y-2 text-center">
                     <div className="rounded-xl bg-gray-50 p-3 transition-colors group-hover:bg-gray-100">
                       <Edit2 className="h-5 w-5 text-gray-600" />
@@ -221,6 +230,16 @@ const PosMenu = ({ table, onClose, onSuccess }: PosMenuTypes) => {
                 </button>
               </div>
             </div>
+            {activeModal === "manageTable" && (
+              <ManageTable
+                table={table}
+                onClose={() => setActiveModal(null)}
+                onSuccess={() => {
+                  onSuccess();
+                  setActiveModal(null);
+                }}
+              />
+            )}
 
             <div className="p-6 pt-0">
               <button

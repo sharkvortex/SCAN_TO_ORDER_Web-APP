@@ -158,7 +158,7 @@ function ListAddOrder({ orderItems, table, onSuccess, onChangeItems }: Props) {
                             onClick={() =>
                               handleQuantityChange(index, item.quantity - 1)
                             }
-                            className="rounded-full bg-red-500 p-2 text-white hover:bg-red-400"
+                            className="rounded-full bg-red-500 p-2 text-white hover:cursor-pointer hover:bg-red-400"
                             aria-label={`ลดจำนวน ${item.name}`}
                           >
                             <FaMinus size={12} />
@@ -180,7 +180,7 @@ function ListAddOrder({ orderItems, table, onSuccess, onChangeItems }: Props) {
                             onClick={() =>
                               handleQuantityChange(index, item.quantity + 1)
                             }
-                            className="rounded-full bg-green-500 p-2 text-white hover:bg-green-400"
+                            className="rounded-full bg-green-500 p-2 text-white hover:cursor-pointer hover:bg-green-400"
                             aria-label={`เพิ่มจำนวน ${item.name}`}
                           >
                             <FaPlus size={12} />

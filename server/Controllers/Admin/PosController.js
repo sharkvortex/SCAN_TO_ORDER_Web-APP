@@ -12,82 +12,73 @@ const clientUrl = process.env.CLIENT_URL;
 export const createQrcode = async (request, reply) => {
   const tableNumber = Number(request.params.tableNumber);
   const random = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 6);
-  const token = request.cookies.token;
-  console.log(token);
-  if (!token) {
-    return reply.status(400).send({
-      code: "TOKEN_NOT_FOUND",
-      message: "token is require",
-    });
-  }
+
   try {
     const table = await prisma.table.findUnique({
       where: { tableNumber },
     });
 
-    if (!table) {
-      return reply.status(404).send("Table not found");
+    if (!table) return reply.status(404).send("Table not found");
+
+    let { orderId, token, status } = table;
+    let needNewOrder = false;
+
+    if (!orderId) {
+      needNewOrder = true;
     }
 
-    let orderId = table.orderId;
-    let token = table.token;
-    let createNew = false;
+    let orderSession = null;
+    if (orderId) {
+      orderSession = await prisma.orderSession.findUnique({
+        where: { orderId },
+      });
 
-    if (table.status === "AVAILABLE") {
-      createNew = true;
-    } else if (orderId && token) {
-      try {
-        jwt.verify(token, jwtsecret);
-      } catch {
-        createNew = true;
+      if (!orderSession || orderSession.status !== "PENDING") {
+        needNewOrder = true;
+      }
+    }
+
+    if (!needNewOrder && orderId) {
+      let isTokenValid = false;
+
+      if (token) {
+        try {
+          jwt.verify(token, jwtsecret);
+          isTokenValid = true;
+        } catch (err) {}
       }
 
-      if (!createNew) {
-        const orderSession = await prisma.orderSession.findUnique({
-          where: { orderId },
+      if (!isTokenValid) {
+        token = jwt.sign({ tableNumber, orderId }, jwtsecret, {
+          expiresIn: "4h",
         });
 
-        if (orderSession?.status === "PAID") {
-          createNew = true;
-        } else if (orderSession?.status !== "PENDING") {
-          createNew = true;
-        } else {
-          token = jwt.sign({ tableNumber, orderId }, jwtsecret, {
-            expiresIn: "4h",
-          });
-
-          await prisma.table.update({
-            where: { tableNumber },
-            data: { token },
-          });
-
-          createNew = false;
-        }
+        await prisma.table.update({
+          where: { tableNumber },
+          data: { token },
+        });
       }
-    } else {
-      createNew = true;
+
+      const url = `${clientUrl}/?tk=${token}`;
+      const qrCode = await Qrcode.toDataURL(url);
+      return reply.status(200).send(qrCode);
     }
 
-    if (createNew) {
-      orderId = `ORD-${dayjs().format("YYMMDD")}-${random()}`;
+    orderId = `ORD-${dayjs().format("YYMMDD")}-${random()}`;
+    token = jwt.sign({ tableNumber, orderId }, jwtsecret, { expiresIn: "4h" });
 
-      token = jwt.sign({ tableNumber, orderId }, jwtsecret, {
-        expiresIn: "5h",
-      });
+    await prisma.table.update({
+      where: { tableNumber },
+      data: {
+        token,
+        orderId,
+        status: "OCCUPIED",
+      },
+    });
 
-      await prisma.table.update({
-        where: { tableNumber },
-        data: {
-          token,
-          orderId,
-          status: "OCCUPIED",
-        },
-      });
-
-      await prisma.orderSession.create({
-        data: { orderId, tableNumber },
-      });
-    }
+    await prisma.orderSession.create({
+      data: { orderId, tableNumber },
+    });
 
     const url = `${clientUrl}/?tk=${token}`;
     const qrCode = await Qrcode.toDataURL(url);
@@ -548,5 +539,78 @@ export const reserveTable = async (request, reply) => {
       message:
         error?.message || "Internal server error. Please try again later.",
     });
+  }
+};
+
+// Close Table by TableNumber , close table Order status !==  PENDING
+export const closeTable = async (request, reply) => {
+  const tableNumber = Number(request.params.tableNumber);
+
+  if (!tableNumber) {
+    return reply.status(400).send({
+      code: "TABLE_NUMBER_REQUIRED",
+      message: "tableNumber is required",
+    });
+  }
+
+  try {
+    const table = await prisma.table.findUnique({
+      where: { tableNumber },
+    });
+
+    if (!table) {
+      return reply.status(404).send({
+        code: "TABLE_NOT_FOUND",
+        message: "Table not found",
+      });
+    }
+
+    if (table.status === "AVAILABLE") {
+      return reply.status(400).send({
+        code: "TABLE_ALREADY_AVAILABLE",
+        message: "Table is already available",
+      });
+    }
+
+    if (table.orderId) {
+      const session = await prisma.orderSession.findUnique({
+        where: { orderId: table.orderId },
+      });
+
+      if (session) {
+        const orderCount = await prisma.order.count({
+          where: {
+            orderSessionId: session.id,
+          },
+        });
+
+        if (orderCount > 0) {
+          return reply.status(400).send({
+            code: "ORDERS_EXIST",
+            message: "Cannot close table with existing orders",
+          });
+        }
+      }
+    }
+
+    await prisma.table.update({
+      where: { tableNumber },
+      data: {
+        status: "AVAILABLE",
+        orderId: null,
+        token: null,
+        note: null,
+      },
+    });
+
+    io.emit("table-update", { tableNumber, status: "AVAILABLE" });
+
+    return reply.status(200).send({
+      code: "SUCCESS",
+      message: "Table closed successfully",
+    });
+  } catch (error) {
+    console.error("Error closing table:", error);
+    return reply.status(500).send({ message: "Internal server error" });
   }
 };

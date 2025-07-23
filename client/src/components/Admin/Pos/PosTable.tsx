@@ -6,8 +6,9 @@ import { MdTableBar, MdNotificationsActive } from "react-icons/md";
 import { motion } from "framer-motion";
 import type { tableType } from "../../../types/tableType";
 import socket from "@/components/Sokcet/soket";
-import toast from "react-hot-toast";
+
 import addOrderSound from "@/assets/sounds/add-order.mp3";
+
 function TableData() {
   const { tables, fetchTables } = useGetTable();
   const [selectedTable, setSelectedTable] = useState<tableType | null>(null);
@@ -50,7 +51,6 @@ function TableData() {
   useEffect(() => {
     const onAddOrder = async (tableNumber: number) => {
       setNotifiedTables((prev) => [...new Set([...prev, tableNumber])]);
-      toast.success(`ออเดอร์ใหม่ โต๊ะ ${tableNumber}`);
 
       try {
         await soundAddOrderRef.play();
@@ -58,11 +58,15 @@ function TableData() {
         console.error("เล่นเสียงล้มเหลว:", error);
       }
     };
-
+    const onTableupdate = () => {
+      fetchTables();
+    };
     socket.on("add-orders", onAddOrder);
+    socket.on("table-update", onTableupdate);
 
     return () => {
       socket.off("add-orders", onAddOrder);
+      socket.off("table-update", onTableupdate);
     };
   }, []);
 
@@ -140,7 +144,10 @@ function TableData() {
           onClose={() => {
             setSelectedTable(null);
           }}
-          onSuccess={() => fetchTables()}
+          onSuccess={() => {
+            setSelectedTable(null);
+            fetchTables();
+          }}
         />
       )}
     </>

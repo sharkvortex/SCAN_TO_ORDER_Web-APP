@@ -10,6 +10,7 @@ import {
   cancelOrderAll,
   addOrderbyTableNumber,
   reserveTable,
+  closeTable,
 } from "../../Controllers/Admin/PosController.js";
 import { VerifyAdmin } from "../../middleware.js";
 const PosRoute = async (fastify, options) => {
@@ -28,6 +29,7 @@ const PosRoute = async (fastify, options) => {
   fastify.delete("/delete-orderId/:id", deleteOrderId);
   fastify.post("/add-order", addOrderbyTableNumber);
   fastify.patch("/reserve", reserveTable);
+  fastify.patch("/tables/close/:tableNumber", closeTable);
 };
 
 export default PosRoute;

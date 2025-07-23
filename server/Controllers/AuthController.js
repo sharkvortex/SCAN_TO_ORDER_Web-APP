@@ -6,11 +6,21 @@ import bcrypt from "bcrypt";
 export const verifyToken = async (request, reply) => {
   const authHeader = request.headers.authorization;
   const token = authHeader?.replace("Bearer ", "");
+
   if (!token) {
-    return reply.status(400).send({ message: "token is requre!" });
+    return reply.status(400).send({ message: "Token is required!" });
   }
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const findToken = await prisma.table.findFirst({
+      where: { token },
+    });
+
+    if (!findToken) {
+      return reply.status(401).send({ message: "Token not found in database" });
+    }
 
     return reply.status(200).send({
       tableNumber: decoded.tableNumber,

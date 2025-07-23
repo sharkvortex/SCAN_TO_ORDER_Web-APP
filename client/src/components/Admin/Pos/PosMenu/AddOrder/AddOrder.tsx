@@ -50,7 +50,7 @@ function AddOrder({
         </h2>
         <button
           onClick={onClose}
-          className="rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+          className="rounded-full p-1 text-gray-500 hover:cursor-pointer hover:bg-gray-100 hover:text-gray-700 active:scale-95"
         >
           <X size={24} />
         </button>
