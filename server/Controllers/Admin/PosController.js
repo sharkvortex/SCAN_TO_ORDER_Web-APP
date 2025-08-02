@@ -197,6 +197,36 @@ export const changeStatusOrderById = async (request, reply) => {
       });
     }
 
+    const shouldMerge = !existingOrder.note.trim();
+
+    if (shouldMerge) {
+      const sameOrder = await prisma.order.findFirst({
+        where: {
+          orderSessionId: existingOrder.orderSessionId,
+          foodId: existingOrder.foodId,
+          note: "",
+          status: newStatus,
+        },
+      });
+
+      if (sameOrder) {
+        await prisma.order.update({
+          where: { id: sameOrder.id },
+          data: {
+            quantity: sameOrder.quantity + existingOrder.quantity,
+          },
+        });
+
+        await prisma.order.delete({
+          where: { id: existingOrder.id },
+        });
+
+        return reply
+          .status(200)
+          .send({ message: "Merged with existing order" });
+      }
+    }
+
     await prisma.order.update({
       where: { id: orderId },
       data: { status: newStatus },
@@ -212,47 +242,81 @@ export const changeStatusOrderById = async (request, reply) => {
 export const receiveOrderAll = async (request, reply) => {
   const tableNumber = Number(request.params.tableNumber);
   if (!tableNumber) {
-    return reply.status(400).send({ message: "tableNumber is require" });
+    return reply.status(400).send({ message: "tableNumber is required" });
   }
 
   try {
     const table = await prisma.table.findUnique({
-      where: {
-        tableNumber: tableNumber,
-      },
+      where: { tableNumber },
     });
+
     if (!table) {
-      return reply.status(404).send({ message: "tableNumber is not found" });
+      return reply.status(404).send({ message: "tableNumber not found" });
     }
+
     if (!table.orderId) {
       return reply
         .status(400)
         .send({ message: "This table has no active order." });
     }
+
     const session = await prisma.orderSession.findUnique({
-      where: {
-        orderId: table.orderId,
-      },
+      where: { orderId: table.orderId },
     });
+
     if (!session) {
-      return reply.status(404).send({ message: "essionId is not found" });
+      return reply.status(404).send({ message: "session not found" });
     }
 
-    await prisma.order.updateMany({
+    const pendingOrders = await prisma.order.findMany({
       where: {
         orderSessionId: session.id,
         status: "PENDING",
       },
-      data: {
-        status: "CONFIRMED",
-      },
     });
+
+    for (const pending of pendingOrders) {
+      const trimmedNote = pending.note?.trim();
+
+      if (!trimmedNote) {
+        const existingConfirmed = await prisma.order.findFirst({
+          where: {
+            orderSessionId: session.id,
+            foodId: pending.foodId,
+            note: "",
+            status: "CONFIRMED",
+          },
+        });
+
+        if (existingConfirmed) {
+          await prisma.order.update({
+            where: { id: existingConfirmed.id },
+            data: {
+              quantity: existingConfirmed.quantity + pending.quantity,
+            },
+          });
+
+          await prisma.order.delete({
+            where: { id: pending.id },
+          });
+
+          continue;
+        }
+      }
+
+      await prisma.order.update({
+        where: { id: pending.id },
+        data: { status: "CONFIRMED" },
+      });
+    }
 
     return reply.status(200).send({ message: "Orders updated successfully" });
   } catch (error) {
-    return reply.status(500).send({});
+    console.error("Receive Order Error:", error);
+    return reply.status(500).send({ message: "Internal server error" });
   }
 };
+
 // Served Order-All Where status PENDING
 export const servedOrderAll = async (request, reply) => {
   const tableNumber = Number(request.params.tableNumber);
@@ -283,19 +347,49 @@ export const servedOrderAll = async (request, reply) => {
       return reply.status(404).send({ message: "essionId is not found" });
     }
 
-    await prisma.order.updateMany({
+    const confirmedOrders = await prisma.order.findMany({
       where: {
         orderSessionId: session.id,
         status: "CONFIRMED",
       },
-      data: {
-        status: "SERVED",
-      },
     });
+
+    for (const order of confirmedOrders) {
+      if (order.note?.trim()) {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { status: "SERVED" },
+        });
+        continue;
+      }
+
+      const duplicate = await prisma.order.findFirst({
+        where: {
+          orderSessionId: session.id,
+          foodId: order.foodId,
+          status: "SERVED",
+          note: "",
+        },
+      });
+
+      if (duplicate) {
+        await prisma.order.update({
+          where: { id: duplicate.id },
+          data: { quantity: duplicate.quantity + order.quantity },
+        });
+        await prisma.order.delete({ where: { id: order.id } });
+      } else {
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { status: "SERVED" },
+        });
+      }
+    }
 
     return reply.status(200).send({ message: "Orders updated successfully" });
   } catch (error) {
-    return reply.status(500).send({});
+    console.error("Error in servedOrderAll:", error);
+    return reply.status(500).send({ message: "Internal server error" });
   }
 };
 //  Cancel Order-All where status !Served
@@ -401,9 +495,7 @@ export const addOrderbyTableNumber = async (request, reply) => {
     }
 
     const table = await prisma.table.findUnique({
-      where: {
-        tableNumber: tableNumber,
-      },
+      where: { tableNumber },
     });
 
     if (!table) {
@@ -421,9 +513,7 @@ export const addOrderbyTableNumber = async (request, reply) => {
     }
 
     const orderSession = await prisma.orderSession.findUnique({
-      where: {
-        orderId: table.orderId,
-      },
+      where: { orderId: table.orderId },
     });
 
     if (!orderSession) {
@@ -434,44 +524,51 @@ export const addOrderbyTableNumber = async (request, reply) => {
     }
 
     const foodIds = data.orderItems.map((item) => item.id);
-
     const foods = await prisma.food.findMany({
       where: {
-        id: {
-          in: foodIds,
-        },
+        id: { in: foodIds },
       },
     });
 
-    const groupedOrderItems = [];
-
     for (const item of data.orderItems) {
-      const existing = groupedOrderItems.find(
-        (o) => o.id === item.id && o.note.trim() === item.note.trim()
-      );
+      const food = foods.find((f) => f.id === item.id);
+      const note = item.note?.trim() || "";
 
-      if (existing) {
-        existing.quantity += item.quantity;
-      } else {
-        groupedOrderItems.push({ ...item });
+      if (!food) continue;
+
+      if (!note) {
+        const existingOrder = await prisma.order.findFirst({
+          where: {
+            orderSessionId: orderSession.id,
+            foodId: item.id,
+            note: "",
+            status: "PENDING",
+          },
+        });
+
+        if (existingOrder) {
+          await prisma.order.update({
+            where: { id: existingOrder.id },
+            data: {
+              quantity: existingOrder.quantity + item.quantity,
+            },
+          });
+          continue;
+        }
       }
+
+      await prisma.order.create({
+        data: {
+          orderSessionId: orderSession.id,
+          foodId: item.id,
+          foodName: food.name || "",
+          foodPrice: food.price || 0,
+          quantity: item.quantity,
+          note,
+        },
+      });
     }
 
-    const orderItemsData = groupedOrderItems.map((item) => {
-      const food = foods.find((f) => f.id === item.id);
-
-      return {
-        orderSessionId: orderSession.id,
-        foodId: item.id,
-        foodName: food?.name || "",
-        foodPrice: food?.price || 0,
-        quantity: item.quantity,
-        note: item.note || "",
-      };
-    });
-    await prisma.order.createMany({
-      data: orderItemsData,
-    });
     io.emit("add-orders", tableNumber);
     return reply.status(201).send({
       code: "ORDER_SUCCESS",
@@ -612,5 +709,94 @@ export const closeTable = async (request, reply) => {
   } catch (error) {
     console.error("Error closing table:", error);
     return reply.status(500).send({ message: "Internal server error" });
+  }
+};
+
+export const getCheckBill = async (request, reply) => {
+  const tableNumber = Number(request.params.tableNumber);
+
+  if (!tableNumber) {
+    return reply.status(400).send({
+      code: "TABLE_NUMBER_REQUIRED",
+      message: "tableNumber is required",
+    });
+  }
+
+  try {
+    const table = await prisma.table.findUnique({
+      where: { tableNumber },
+    });
+
+    if (!table) {
+      return reply.status(404).send({
+        code: "TABLE_NOT_FOUND",
+        message: "Table not found",
+      });
+    }
+
+    if (!table.orderId) {
+      return reply.status(400).send({
+        code: "NO_ACTIVE_ORDER",
+        message: "This table has no active order.",
+      });
+    }
+
+    const session = await prisma.orderSession.findUnique({
+      where: { orderId: table.orderId },
+      include: { orders: true },
+    });
+
+    if (!session) {
+      return reply.status(404).send({
+        code: "ORDER_SESSION_NOT_FOUND",
+        message: "Order session not found",
+      });
+    }
+
+    const servedOrders = session.orders.filter(
+      (order) => order.status === "SERVED"
+    );
+
+    if (session.status === "PAID") {
+      const total = Math.round(
+        servedOrders.reduce(
+          (sum, order) => sum + order.foodPrice * order.quantity,
+          0
+        )
+      );
+      return reply.status(200).send({
+        code: "ORDER_ALREADY_PAID",
+        status: "PAID",
+        total,
+        orders: servedOrders,
+      });
+    }
+
+    if (servedOrders.length === 0) {
+      return reply.status(200).send({
+        code: "NO_ORDERS",
+        message: "No orders found for this table",
+        orders: [],
+      });
+    }
+
+    const totalAmount = Math.round(
+      servedOrders.reduce(
+        (sum, order) => sum + order.foodPrice * order.quantity,
+        0
+      )
+    );
+
+    return reply.status(200).send({
+      code: "SUCCESS",
+      status: session.status,
+      totalAmount,
+      orders: servedOrders,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Something went wrong",
+    });
   }
 };

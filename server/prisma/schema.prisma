@@ -75,9 +75,20 @@ model OrderSession {
   orderId     String        @unique
   tableNumber Int
   status      SessionStatus @default(PENDING)
+  totalPrice  Float         @default(0)
+  paidBy      PaidBy?
+  paidAmount  Float         @default(0)
+  paidAt      DateTime?
+  note        String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   orders      Order[]       @relation("SessionOrders")
+}
+
+enum PaidBy {
+  CASH
+  PROMPTPAY
+  OTHER
 }
 
 enum SessionStatus {

@@ -3,7 +3,14 @@ import jwt from "jsonwebtoken";
 const AllowRoles = ["EMPLOYEE", "ADMIN", "ADMINISTRATOR"];
 
 export const VerifyAdmin = (request, reply, next) => {
-  const token = request.cookies.token;
+  const cookieToken = request.cookies?.token;
+  const authHeader = request.headers.authorization;
+
+  let token = cookieToken;
+
+  if (!token && authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  }
 
   if (!token) {
     return reply.status(401).send({

@@ -187,16 +187,16 @@ function HistoryOrderList({ loading, sortedOrders }: HistoryOrderListTypes) {
                       <h3 className="font-medium text-gray-800">
                         {order.foodName}
                       </h3>
-                      <span
-                        className={`text-xs ${StatusBackground(order.status)} rounded-full px-2 py-1`}
-                      >
-                        {StatusText(order.status)}
-                      </span>
                     </div>
                     <p className="mt-1 text-sm text-gray-500">
                       {order.foodPrice.toFixed(0)}฿/ชิ้น • รวม{" "}
                       {(order.foodPrice * order.quantity).toFixed(0)}฿
                     </p>
+                    <span
+                      className={`text-xs ${StatusBackground(order.status)} rounded-full px-2 py-1`}
+                    >
+                      {StatusText(order.status)}
+                    </span>
                     {order.note && (
                       <div className="mt-2 rounded px-2 py-1">
                         <p className="text-sm text-gray-600">

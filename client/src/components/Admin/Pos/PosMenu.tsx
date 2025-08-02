@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { PlusCircle, Clock, DollarSign, User, Edit2, X } from "lucide-react";
-import OpenTable from "./PosMenu/OpenTable";
-import HistoryOrder from "./PosMenu/HistoryOrder/HistoryOrder";
+import OpenTable from "@/components/Admin/Pos/PosMenu/OpenTable";
+import HistoryOrder from "@/components/Admin/Pos/PosMenu/HistoryOrder/HistoryOrder";
 import { AnimatePresence, motion } from "framer-motion";
 import type { tableType } from "@/types/tableType";
-import AddOrder from "./PosMenu/AddOrder/AddOrder";
-import ReserveTable from "./PosMenu/Reserve/ReserveTable";
-import ManageTable from "./PosMenu/ManageTable/ManageTable";
+import AddOrder from "@/components/Admin/Pos/PosMenu/AddOrder/AddOrder";
+import ReserveTable from "@/components/Admin/Pos/PosMenu/Reserve/ReserveTable";
+import ManageTable from "@/components/Admin/Pos/PosMenu/ManageTable/ManageTable";
+import CheckBill from "@/components/Admin/Pos/PosMenu/CheckBill/CheckBill";
 interface PosMenuTypes {
   onClose: () => void;
   onSuccess: () => void;
@@ -54,6 +55,7 @@ const PosMenu = ({ table, onClose, onSuccess }: PosMenuTypes) => {
     | "reservedTable"
     | "addOrder"
     | "manageTable"
+    | "checkBill"
   >(null);
 
   const handlerOpenTable = () => {
@@ -176,7 +178,10 @@ const PosMenu = ({ table, onClose, onSuccess }: PosMenuTypes) => {
                 )}
 
                 {isOccupied && (
-                  <button className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm active:scale-95">
+                  <button
+                    onClick={() => setActiveModal("checkBill")}
+                    className="group rounded-2xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:cursor-pointer hover:border-gray-300 hover:shadow-sm active:scale-95"
+                  >
                     <div className="flex flex-col items-center space-y-2 text-center">
                       <div className="rounded-xl bg-green-50 p-3 transition-colors group-hover:bg-green-100">
                         <DollarSign className="h-5 w-5 text-green-600" />
@@ -186,6 +191,12 @@ const PosMenu = ({ table, onClose, onSuccess }: PosMenuTypes) => {
                       </span>
                     </div>
                   </button>
+                )}
+                {activeModal === "checkBill" && (
+                  <CheckBill
+                    table={table}
+                    onClose={() => setActiveModal(null)}
+                  />
                 )}
 
                 {isAvailable && (

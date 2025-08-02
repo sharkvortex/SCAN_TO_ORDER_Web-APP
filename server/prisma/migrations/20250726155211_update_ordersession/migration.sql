@@ -1,0 +1,9 @@
+-- CreateEnum
+CREATE TYPE "PaidBy" AS ENUM ('CASH', 'PROMPTPAY', 'OTHER');
+
+-- AlterTable
+ALTER TABLE "OrderSession" ADD COLUMN     "note" TEXT,
+ADD COLUMN     "paidAmount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "paidAt" TIMESTAMP(3),
+ADD COLUMN     "paidBy" "PaidBy",
+ADD COLUMN     "totalPrice" DOUBLE PRECISION NOT NULL DEFAULT 0;
