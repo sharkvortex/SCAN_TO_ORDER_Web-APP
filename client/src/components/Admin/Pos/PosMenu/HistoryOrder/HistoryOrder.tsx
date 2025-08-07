@@ -14,12 +14,12 @@ import { useReceiveOrder } from "../../../../../hooks/Admin/useReceiveOrder";
 import { useServedOrder } from "../../../../../hooks/Admin/useServedOrder";
 import { useCancelOrder } from "../../../../../hooks/Admin/useCancelOrder";
 // Framework
-import socket from "../../../../Sokcet/soket";
+import socket from "@/components/Sokcet/soket";
 import toast from "react-hot-toast";
 import { AnimatePresence, motion } from "framer-motion";
 // Types
-import type { tableType } from "../../../../../types/tableType";
-import type { diaLogTypes } from "../../../../../types/diaLogTypes";
+import type { tableType } from "@/types/tableType";
+import type { diaLogTypes } from "@/types/diaLogTypes";
 interface HistoryOrderTypes {
   onClose: () => void;
   table: tableType;
