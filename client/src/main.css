@@ -1,4 +1,9 @@
 @import "tailwindcss";
+
+html {
+  scrollbar-gutter: stable;
+}
+
 html,
 body {
   font-family: "Fredoka", "IBM Plex Sans Thai", sans-serif;

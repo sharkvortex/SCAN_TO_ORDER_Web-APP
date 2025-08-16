@@ -1,14 +1,16 @@
-import React from "react";
 import { StickyNote, CircleDollarSign, Hash } from "lucide-react";
-
-function CheckBillItem({ data }: { data: any[] }) {
+import type { OrderItem } from "@/types/ordersTypes";
+function CheckBillItem({
+  data,
+}: {
+  data: { orders: OrderItem[]; totalAmount: number };
+}) {
   const { orders, totalAmount } = data;
 
   return (
     <div className="space-y-4 rounded-lg p-4 text-gray-800">
-      {/* Order List */}
       <div className="space-y-3">
-        {orders?.map((item) => (
+        {orders?.map((item: any) => (
           <div
             key={item.id}
             className="flex justify-between rounded-xl bg-white p-4"

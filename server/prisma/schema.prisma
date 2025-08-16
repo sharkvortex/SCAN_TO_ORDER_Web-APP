@@ -93,6 +93,7 @@ enum PaidBy {
 
 enum SessionStatus {
   PENDING
+  PAYING
   PAID
   CANCELLED
 }

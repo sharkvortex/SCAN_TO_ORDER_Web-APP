@@ -12,6 +12,8 @@ import {
   reserveTable,
   closeTable,
   getCheckBill,
+  getStatusBill,
+  changeStatusBill,
 } from "../../Controllers/Admin/PosController.js";
 import { VerifyAdmin } from "../../middleware.js";
 const PosRoute = async (fastify, options) => {
@@ -36,6 +38,8 @@ const PosRoute = async (fastify, options) => {
     { preHandler: VerifyAdmin },
     getCheckBill
   );
+  fastify.get("/bills/status/:orderId", getStatusBill);
+  fastify.put("/bills/status/:orderId", changeStatusBill);
 };
 
 export default PosRoute;

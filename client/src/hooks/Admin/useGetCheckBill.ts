@@ -1,8 +1,9 @@
 import axios from "@/utils/axios";
 import { useState } from "react";
+import type { OrderTypes } from "@/types/ordersTypes";
 export const useGetCheckBill = () => {
     const [loading, setLoading] = useState<boolean>(false);
-    const [checkBillItems, setCheckBillItems] = useState<any[]>([]);
+    const [checkBillItems, setCheckBillItems] = useState<OrderTypes | null>(null);
     const getCheckBill = async (tableNumber: number) => {
         try {
             setLoading(true);

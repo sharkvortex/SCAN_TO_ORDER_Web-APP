@@ -108,6 +108,11 @@ const PosMenu = ({ table, onClose, onSuccess }: PosMenuTypes) => {
                     <span className="text-sm text-gray-600">
                       {getStatusText()}
                     </span>
+                    {table?.note && (
+                      <span className="ml-2 rounded px-3 text-sm font-semibold text-gray-500">
+                        {table.note}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -196,6 +201,10 @@ const PosMenu = ({ table, onClose, onSuccess }: PosMenuTypes) => {
                   <CheckBill
                     table={table}
                     onClose={() => setActiveModal(null)}
+                    onSuccess={() => {
+                      onSuccess();
+                      setActiveModal(null);
+                    }}
                   />
                 )}
 

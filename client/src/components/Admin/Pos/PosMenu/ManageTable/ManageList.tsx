@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { FaQrcode, FaDoorClosed } from "react-icons/fa";
 import ConfirmDialog from "@/components/Dialog/ConfirmDialog";
 import { useCreateQrcode } from "@/hooks/Admin/useCreateQrcode";

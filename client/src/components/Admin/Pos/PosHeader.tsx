@@ -124,10 +124,13 @@ function PosHeader() {
               </div>
 
               <div className="p-1">
-                <button className="flex w-full items-center space-x-2 rounded-md px-3 py-2 text-sm text-gray-700 transition-colors duration-200 hover:cursor-pointer hover:bg-gray-50 hover:text-blue-600">
-                  <FiSettings className="text-gray-500" />
-                  <span>ตั้งค่าบัญชี</span>
-                </button>
+                {(profile.role === "ADMINISTRATOR" ||
+                  profile.role === "ADMIN") && (
+                  <button className="flex w-full items-center space-x-2 rounded-md px-3 py-2 text-sm text-gray-700 transition-colors duration-200 hover:cursor-pointer hover:bg-gray-50 hover:text-blue-600">
+                    <FiSettings className="text-gray-500" />
+                    <span>แดชบอร์ด</span>
+                  </button>
+                )}
                 <button
                   onClick={() => handlerLogout()}
                   className="flex w-full items-center space-x-2 rounded-md px-3 py-2 text-sm text-red-600 transition-colors duration-200 hover:cursor-pointer hover:bg-red-50"

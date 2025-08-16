@@ -197,7 +197,7 @@ export const changeStatusOrderById = async (request, reply) => {
       });
     }
 
-    const shouldMerge = !existingOrder.note.trim();
+    const shouldMerge = !existingOrder.note?.trim();
 
     if (shouldMerge) {
       const sameOrder = await prisma.order.findFirst({
@@ -686,10 +686,15 @@ export const closeTable = async (request, reply) => {
             code: "ORDERS_EXIST",
             message: "Cannot close table with existing orders",
           });
+        } else {
+          await prisma.orderSession.delete({
+            where: { id: session.id },
+          });
         }
       }
     }
 
+    // ปรับสถานะโต๊ะ
     await prisma.table.update({
       where: { tableNumber },
       data: {
@@ -712,6 +717,42 @@ export const closeTable = async (request, reply) => {
   }
 };
 
+// Get StatusBill
+export const getStatusBill = async (request, reply) => {
+  const orderId = request.params.orderId;
+
+  if (!orderId) {
+    return reply.status(400).send({
+      code: "ORDER_ID_REQUIRED",
+      message: "orderId is required",
+    });
+  }
+
+  try {
+    const session = await prisma.orderSession.findUnique({
+      where: { orderId },
+    });
+
+    if (!session) {
+      return reply.status(404).send({
+        code: "ORDER_SESSION_NOT_FOUND",
+        message: "Order session not found",
+      });
+    }
+
+    return reply.status(200).send({
+      code: "SUCCESS",
+      status: session.status,
+    });
+  } catch (error) {
+    console.error("Error getting status bill:", error);
+    return reply.status(500).send({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Something went wrong",
+    });
+  }
+};
+// Get CheckBill by TableNumber
 export const getCheckBill = async (request, reply) => {
   const tableNumber = Number(request.params.tableNumber);
 
@@ -792,6 +833,54 @@ export const getCheckBill = async (request, reply) => {
       status: session.status,
       totalAmount,
       orders: servedOrders,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Something went wrong",
+    });
+  }
+};
+
+// Change StatusBill
+export const changeStatusBill = async (request, reply) => {
+  const orderId = request.params.orderId;
+  const status = request.body.status;
+
+  if (!orderId || !status) {
+    return reply.status(400).send({
+      code: "ORDER_ID_AND_STATUS_REQUIRED",
+      message: "orderId and status are required",
+    });
+  }
+
+  try {
+    const session = await prisma.orderSession.findUnique({
+      where: { orderId },
+    });
+
+    if (!session) {
+      return reply.status(404).send({
+        code: "ORDER_SESSION_NOT_FOUND",
+        message: "Order session not found",
+      });
+    }
+
+    if (status === "PAID" && session.tableNumber) {
+      await prisma.table.update({
+        where: { tableNumber: session.tableNumber },
+        data: { status: "AVAILABLE", token: null, orderId: null, note: null },
+      });
+    }
+
+    await prisma.orderSession.update({
+      where: { orderId },
+      data: { status },
+    });
+
+    return reply.status(200).send({
+      code: "SUCCESS",
+      message: "Order status updated successfully",
     });
   } catch (error) {
     return reply.status(500).send({
