@@ -215,9 +215,11 @@ export const Login = async (request, reply) => {
       token,
     });
   } catch (error) {
+    console.log(error);
     return reply.status(500).send({
       message: "Internal Server Error",
     });
+    
   }
 };
 // Logout
